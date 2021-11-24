@@ -33,12 +33,13 @@ this is not actually GD). You can ensure this by caching the hypothesis
 calculations before updating.
 - Use numpy arrays since they have built-in functionality like element-wise
 operations between lists (e.g. you can do list1 * list2 on np arrays but not
-on standard python lists)
+on standard python lists). Additionally the np.zeros array uses int64 which
+is smaller than int so it can avoid integer overflows.
 
 Stil to do
 - do multiple linear regression
 - Try on bigger datasets
-- Implement Batch GD
+- Implement Mini-Batch GD
 - compare to sklearn
 - 
 """
@@ -53,58 +54,40 @@ class LinearRegression(object):
 		print("Initialized linear regression model")
 
 	def fit(self, x, y, alpha, num_iterations):
-		self.x = x
+		self.x = np.array(x)
 		self.y = np.array(y)
 		self.m = len(x) # num samples
-		self.n = len(self.x.columns) + 1 # num weights
-		self.weights = [0] * self.n
+		self.n = len(x.columns) # num features
+		self.weights = np.zeros(self.n + 1)
 
-		arr1 = np.array([10,20,30])
-		arr2 = np.array([5,6,7])
-		arr3 = [10,20,30]
-		arr4 = [5,6,7]
-		print(arr1 * arr2)
-
-		# for i in range(num_iterations):
-		# 	print("Iteration", i)
-		# 	y_predictions = self.predict()
-		# 	self.weights[0] = self.weights[0] - alpha * ((1/self.m) * np.sum(y_predictions - self.y))
-		# 	for j in range(1, self.n):
-		# 		self.weights[j] = self.weights[j] - alpha * ((1/self.m) * np.sum((y_predictions - y) * x))
-		# 	# self.theta1 = self.theta1 - alpha * ((1/m) * np.sum((y_predictions - y) * x))
-		# print("Finished fitting", self.weights)
-		# self.printError(x,y)
-		# self.plotPredictions(x,y)
+		for i in range(num_iterations):
+			print("Iteration", i)
+			y_predictions = self.predict()
+			self.weights[0] = self.weights[0] - alpha * ((1/self.m) * np.sum(y_predictions - self.y))
+			for j in range(1, self.n + 1):
+				self.weights[j] = self.weights[j] - alpha * ((1/self.m) * np.sum((y_predictions - self.y) * self.x[:,j-1]))
+		print("Finished fitting", self.weights)
+		self.printError()
+		# self.plotPredictions()
 
 	def predict(self):
 		y_predictions = []
+		for row in self.x:
+			y_predictions.append(self.weights[0] + np.sum(self.weights[1:] * row))
+		return np.array(y_predictions)
 
-		for i, row in self.x.iterrows():
-			# calculate weighted sum
-			prediction = np.sum(self.elementWiseMultiply(
-				self.weights[1:], row))
-			# Add bias term
-			prediction += self.weights[0]
-			y_predictions.append(prediction)
-
-		return y_predictions
-
-	def elementWiseMultiply(self, lista, listb):
-		return [a * b for a,b in zip(lista,listb)]
-
-	def plotPredictions(self, x, y):
-		y_predictions = self.predict(x)
-		plt.plot(x, y, 'o')
-		plt.plot(x, y_predictions)
+	def plotPredictions(self):
+		y_predictions = self.predict()
+		plt.plot(self.x, self.y, 'o')
+		plt.plot(self.x, y_predictions)
 		plt.show()
 
-	def printError(self,x,y):
+	def printError(self):
 		total_squared_error = 0
-		m = len(x)
-		predictions = self.predict(x)
-		total_squared_error = np.sum((predictions - y) ** 2)
+		predictions = self.predict()
+		total_squared_error = np.sum((predictions - self.y) ** 2)
 		total_error = math.sqrt(total_squared_error)
-		avg_error = total_error / m
+		avg_error = total_error / self.m
 		print("Total Error", total_error)
 		print("Avg Error", avg_error)
 
@@ -117,8 +100,8 @@ def main():
 	df.drop(['neighborhood', 'borough'], inplace=True, axis=1)
 	x = df.loc[:, df.columns != 'rent']
 	y = df[['rent']]
-	# print(len(x.columns))
+	# print(x.dtypes)
 	regr_model = LinearRegression()
-	regr_model.fit(x, y, .0001, 100)
+	regr_model.fit(x, y, .0001, 20)
 
 main()
