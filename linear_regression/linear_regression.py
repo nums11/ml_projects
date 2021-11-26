@@ -27,7 +27,7 @@ Learnings:
 I started seeing a bunch of nans in the partial derivative.
 - Since there is no feature for Θ_0, xi_0 = 1 so the partial derivative
 term for Θ_0 doesn't multiply by a feature at the end
-- GD updates need to be simultaneous; you don't want to calculate differen
+- GD updates need to be simultaneous; you don't want to calculate different
 hypotheses for the later weights since the earlier weights were updated (
 this is not actually GD). You can ensure this by caching the hypothesis
 calculations before updating.
@@ -35,6 +35,7 @@ calculations before updating.
 operations between lists (e.g. you can do list1 * list2 on np arrays but not
 on standard python lists). Additionally the np.zeros array uses int64 which
 is smaller than int so it can avoid integer overflows.
+- Confirm the size of matrices for debugging
 
 Stil to do
 - do multiple linear regression
@@ -49,23 +50,41 @@ import math
 import numpy as np
 
 class LinearRegression(object):
-	"""docstring for LinearRegression"""
 	def __init__(self):
 		print("Initialized linear regression model")
 
 	def fit(self, x, y, alpha, num_iterations):
 		self.x = np.array(x)
-		self.y = np.array(y)
+		self.y = np.array(y).flatten()
 		self.m = len(x) # num samples
 		self.n = len(x.columns) # num features
 		self.weights = np.zeros(self.n + 1)
 
+		# The values of y predictions seem to be exploding
+		# which is causing dtheta to reach inf
+		# The value of y predictions are exploding because the weights are exploding
+		# I think I just need to normalize the values in the samples
+
+		caught = False
 		for i in range(num_iterations):
 			print("Iteration", i)
 			y_predictions = self.predict()
-			self.weights[0] = self.weights[0] - alpha * ((1/self.m) * np.sum(y_predictions - self.y))
+			dtheta_0 = (1/self.m) * np.sum(y_predictions - self.y)
+			self.weights[0] = self.weights[0] - alpha * dtheta_0
 			for j in range(1, self.n + 1):
-				self.weights[j] = self.weights[j] - alpha * ((1/self.m) * np.sum((y_predictions - self.y) * self.x[:,j-1]))
+				dtheta_j = (1/self.m) * np.dot(y_predictions - self.y, self.x[:,j-1])
+				print("dtheta_j", dtheta_j)
+				if math.isinf(dtheta_j) or math.isnan(dtheta_j):
+					print("y_predictions - self.y", y_predictions - self.y)
+					print("self.x[:,j-1]",self.x[:,j-1])
+					print("dot",np.dot(y_predictions - self.y, self.x[:,j-1]))
+					print("weights", self.weights)
+					caught = True
+				if caught:
+					break
+				self.weights[j] = self.weights[j] - alpha * dtheta_j
+			if caught:
+				break
 		print("Finished fitting", self.weights)
 		self.printError()
 		# self.plotPredictions()
@@ -73,7 +92,7 @@ class LinearRegression(object):
 	def predict(self):
 		y_predictions = []
 		for row in self.x:
-			y_predictions.append(self.weights[0] + np.sum(self.weights[1:] * row))
+			y_predictions.append(self.weights[0] + np.dot(self.weights[1:], row))
 		return np.array(y_predictions)
 
 	def plotPredictions(self):
@@ -91,6 +110,9 @@ class LinearRegression(object):
 		print("Total Error", total_error)
 		print("Avg Error", avg_error)
 
+	def zscoreNormalize(self):
+		pass
+
 
 def main():
 	# df = pd.read_csv("baseball_heights_and_weights.csv")
@@ -102,6 +124,6 @@ def main():
 	y = df[['rent']]
 	# print(x.dtypes)
 	regr_model = LinearRegression()
-	regr_model.fit(x, y, .0001, 20)
+	regr_model.fit(x, y, .0001, 100)
 
 main()
