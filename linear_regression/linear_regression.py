@@ -123,15 +123,11 @@ def main():
 	df.drop(['neighborhood', 'borough'], inplace=True, axis=1)
 
 	scaler = preprocessing.StandardScaler()
-	scaled_values = scaler.fit_transform(df.values)
-	df = pd.DataFrame(scaled_values)
-	print(df.columns)
+	df = pd.DataFrame(scaler.fit_transform(df.values), columns=df.columns, index=df.index)
 
-	# x = df.loc[:, df.columns != 'rent']
-	# print(x)
-	# y = df[['rent']]
-	# print(y)
-	# regr_model = LinearRegression()
-	# regr_model.fit(x, y, .0001, 100)
+	x = df.loc[:, df.columns != 'rent']
+	y = df[['rent']]
+	regr_model = LinearRegression()
+	regr_model.fit(x, y, .0001, 100)
 
 main()
