@@ -38,13 +38,15 @@ is smaller than int so it can avoid integer overflows.
 - Confirm the size of matrices for debugging
 - Normalizing doesn't just help your model converge faster but it also protects
 agains exploding weights which could lead to NAN erros.
+- Normalizing the labels makes the results less interpretable so just normalize
+features.
 
-Stil to do
-- do multiple linear regression
-- Try on bigger datasets
+Result on manhattan.csv:
+- LR of 0.5 converges after about 20 iterations with avg. loss of 25
+
+Possible Additions
+- 1-Hot Encode the Neighborhood and see if that improves things.
 - Implement Mini-Batch GD
-- compare to sklearn
-- 
 """
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -62,8 +64,8 @@ class LinearRegression(object):
 		self.m = len(x) # num samples
 		self.n = len(x.columns) # num features
 		self.weights = np.zeros(self.n + 1)
+		self.losses = []
 
-		caught = False
 		for i in range(num_iterations):
 			print("Iteration", i)
 			y_predictions = self.predict(self.x)
@@ -72,19 +74,14 @@ class LinearRegression(object):
 			for j in range(1, self.n + 1):
 				dtheta_j = (1/self.m) * np.dot(y_predictions - self.y, self.x[:,j-1])
 				# print("dtheta_j", dtheta_j)
-				if math.isinf(dtheta_j) or math.isnan(dtheta_j):
-					print("y_predictions - self.y", y_predictions - self.y)
-					print("self.x[:,j-1]",self.x[:,j-1])
-					print("dot",np.dot(y_predictions - self.y, self.x[:,j-1]))
-					print("weights", self.weights)
-					caught = True
-				if caught:
-					break
 				self.weights[j] = self.weights[j] - alpha * dtheta_j
-			if caught:
-				break
+			self.losses.append(self.calculateLoss())
+
 		print("Finished fitting", self.weights)
-		self.printError()
+		total_loss = self.calculateLoss()
+		print("Total loss", total_loss)
+		print("Avg loss", total_loss / self.m)
+		self.plotLossOverTime()
 		# self.plotPredictions()
 
 	def predict(self, x):
@@ -99,17 +96,15 @@ class LinearRegression(object):
 		plt.plot(self.x, y_predictions)
 		plt.show()
 
-	def printError(self):
-		total_squared_error = 0
+	def calculateLoss(self):
 		predictions = self.predict(self.x)
-		total_squared_error = np.sum((predictions - self.y) ** 2)
-		total_error = math.sqrt(total_squared_error)
-		avg_error = total_error / self.m
-		print("Total Error", total_error)
-		print("Avg Error", avg_error)
+		total_squared_loss = np.sum((predictions - self.y) ** 2)
+		total_loss = math.sqrt(total_squared_loss)
+		return total_loss
 
-	def zscoreNormalize(self):
-		pass
+	def plotLossOverTime(self):
+		plt.plot(self.losses)
+		plt.show()
 
 
 def main():
@@ -119,27 +114,13 @@ def main():
 	df = pd.read_csv("manhattan.csv")
 	df.drop(['neighborhood', 'borough', 'rental_id'], inplace=True, axis=1)
 
-	scaler = preprocessing.StandardScaler()
-	# df = pd.DataFrame(scaler.fit_transform(df.values), columns=df.columns, index=df.index)
-
 	x = df.loc[:, df.columns != 'rent']
+	scaler = preprocessing.StandardScaler()
 	x = pd.DataFrame(scaler.fit_transform(x.values), columns=x.columns, index=x.index)
 	y = df[['rent']]
 
 	regr_model = LinearRegression()
-	regr_model.fit(x, y, .01, 1000)
-
-	# Trying to see if I get an interpretable output from a prediction
-	# It doesn't appear to be. Trying not to scale the rent
-	# In order to make sure it works I want to be able to see that the
-	# predictions being made are atually making sense
-	# I wonder if I just need to remove the rental id
-	# Not really fix it
-	# Maybe I actually just need to train for more iterations
-	# The error is going down with more iterations. I can try increasing
-	# the learning rate as well
-	# 25.481178562268887
-	# Seems to be working. I'll plot convergence somehow?
+	regr_model.fit(x, y, .5, 20)
 
 	first_row = np.array(x.iloc[[0]])
 	prediction = regr_model.predict(first_row)
