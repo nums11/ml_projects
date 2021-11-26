@@ -36,6 +36,8 @@ operations between lists (e.g. you can do list1 * list2 on np arrays but not
 on standard python lists). Additionally the np.zeros array uses int64 which
 is smaller than int so it can avoid integer overflows.
 - Confirm the size of matrices for debugging
+- Normalizing doesn't just help your model converge faster but it also protects
+agains exploding weights which could lead to NAN erros.
 
 Stil to do
 - do multiple linear regression
@@ -61,20 +63,15 @@ class LinearRegression(object):
 		self.n = len(x.columns) # num features
 		self.weights = np.zeros(self.n + 1)
 
-		# The values of y predictions seem to be exploding
-		# which is causing dtheta to reach inf
-		# The value of y predictions are exploding because the weights are exploding
-		# I think I just need to normalize the values in the samples
-
 		caught = False
 		for i in range(num_iterations):
 			print("Iteration", i)
-			y_predictions = self.predict()
+			y_predictions = self.predict(self.x)
 			dtheta_0 = (1/self.m) * np.sum(y_predictions - self.y)
 			self.weights[0] = self.weights[0] - alpha * dtheta_0
 			for j in range(1, self.n + 1):
 				dtheta_j = (1/self.m) * np.dot(y_predictions - self.y, self.x[:,j-1])
-				print("dtheta_j", dtheta_j)
+				# print("dtheta_j", dtheta_j)
 				if math.isinf(dtheta_j) or math.isnan(dtheta_j):
 					print("y_predictions - self.y", y_predictions - self.y)
 					print("self.x[:,j-1]",self.x[:,j-1])
@@ -90,21 +87,21 @@ class LinearRegression(object):
 		self.printError()
 		# self.plotPredictions()
 
-	def predict(self):
+	def predict(self, x):
 		y_predictions = []
-		for row in self.x:
+		for row in x:
 			y_predictions.append(self.weights[0] + np.dot(self.weights[1:], row))
 		return np.array(y_predictions)
 
 	def plotPredictions(self):
-		y_predictions = self.predict()
+		y_predictions = self.predict(self.x)
 		plt.plot(self.x, self.y, 'o')
 		plt.plot(self.x, y_predictions)
 		plt.show()
 
 	def printError(self):
 		total_squared_error = 0
-		predictions = self.predict()
+		predictions = self.predict(self.x)
 		total_squared_error = np.sum((predictions - self.y) ** 2)
 		total_error = math.sqrt(total_squared_error)
 		avg_error = total_error / self.m
@@ -120,14 +117,32 @@ def main():
 	# x = df["height"]
 	# y = df["weight"]
 	df = pd.read_csv("manhattan.csv")
-	df.drop(['neighborhood', 'borough'], inplace=True, axis=1)
+	df.drop(['neighborhood', 'borough', 'rental_id'], inplace=True, axis=1)
 
 	scaler = preprocessing.StandardScaler()
-	df = pd.DataFrame(scaler.fit_transform(df.values), columns=df.columns, index=df.index)
+	# df = pd.DataFrame(scaler.fit_transform(df.values), columns=df.columns, index=df.index)
 
 	x = df.loc[:, df.columns != 'rent']
+	x = pd.DataFrame(scaler.fit_transform(x.values), columns=x.columns, index=x.index)
 	y = df[['rent']]
+
 	regr_model = LinearRegression()
-	regr_model.fit(x, y, .0001, 100)
+	regr_model.fit(x, y, .01, 1000)
+
+	# Trying to see if I get an interpretable output from a prediction
+	# It doesn't appear to be. Trying not to scale the rent
+	# In order to make sure it works I want to be able to see that the
+	# predictions being made are atually making sense
+	# I wonder if I just need to remove the rental id
+	# Not really fix it
+	# Maybe I actually just need to train for more iterations
+	# The error is going down with more iterations. I can try increasing
+	# the learning rate as well
+	# 25.481178562268887
+	# Seems to be working. I'll plot convergence somehow?
+
+	first_row = np.array(x.iloc[[0]])
+	prediction = regr_model.predict(first_row)
+	print(prediction)
 
 main()
