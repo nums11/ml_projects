@@ -42,10 +42,9 @@ agains exploding weights which could lead to NAN erros.
 features.
 
 Result on manhattan.csv:
-- LR of 0.5 converges after about 20 iterations with avg. loss of 25
+- LR of 0.5 converges after about 20 iterations with avg. loss of 22.7
 
 Possible Additions
-- 1-Hot Encode the Neighborhood and see if that improves things.
 - Implement Mini-Batch GD
 """
 import pandas as pd
@@ -112,7 +111,10 @@ def main():
 	# x = df["height"]
 	# y = df["weight"]
 	df = pd.read_csv("manhattan.csv")
-	df.drop(['neighborhood', 'borough', 'rental_id'], inplace=True, axis=1)
+	neighborhood_one_hot = pd.get_dummies(df['neighborhood'])
+	df = df.drop('neighborhood',axis = 1)
+	df = df.join(neighborhood_one_hot)
+	df.drop(['borough', 'rental_id'], inplace=True, axis=1)
 
 	x = df.loc[:, df.columns != 'rent']
 	scaler = preprocessing.StandardScaler()
