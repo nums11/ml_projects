@@ -48,6 +48,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import math
 import numpy as np
+from sklearn import preprocessing
 
 class LinearRegression(object):
 	def __init__(self):
@@ -120,10 +121,17 @@ def main():
 	# y = df["weight"]
 	df = pd.read_csv("manhattan.csv")
 	df.drop(['neighborhood', 'borough'], inplace=True, axis=1)
-	x = df.loc[:, df.columns != 'rent']
-	y = df[['rent']]
-	# print(x.dtypes)
-	regr_model = LinearRegression()
-	regr_model.fit(x, y, .0001, 100)
+
+	scaler = preprocessing.StandardScaler()
+	scaled_values = scaler.fit_transform(df.values)
+	df = pd.DataFrame(scaled_values)
+	print(df.columns)
+
+	# x = df.loc[:, df.columns != 'rent']
+	# print(x)
+	# y = df[['rent']]
+	# print(y)
+	# regr_model = LinearRegression()
+	# regr_model.fit(x, y, .0001, 100)
 
 main()
