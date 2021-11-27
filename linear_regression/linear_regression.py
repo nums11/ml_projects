@@ -50,7 +50,6 @@ Result on manhattan.csv:
 of 1353 as opposed to the sklearn model which has an RMSE of 1349
 
 Possible Additions
-- Compare to sklearn
 - Implement Mini-Batch GD
 """
 import pandas as pd
