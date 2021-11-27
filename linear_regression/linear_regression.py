@@ -40,11 +40,17 @@ is smaller than int so it can avoid integer overflows.
 agains exploding weights which could lead to NAN erros.
 - Normalizing the labels makes the results less interpretable so just normalize
 features.
+- Make sure you calculate RMSE properly. You have to divide by m before taking
+the sqrt.
+- The np functions can actually be slower than the standard python operations
+(add, subtract, square, etc.) so just use the standard python operations
 
 Result on manhattan.csv:
-- LR of 0.5 converges after about 20 iterations with avg. loss of 22.7
+- LR of 0.5 converges after about 20 iterations with a root mean squared error
+of 1353 as opposed to the sklearn model which has an RMSE of 1349
 
 Possible Additions
+- Compare to sklearn
 - Implement Mini-Batch GD
 """
 import pandas as pd
@@ -52,6 +58,9 @@ import matplotlib.pyplot as plt
 import math
 import numpy as np
 from sklearn import preprocessing
+from sklearn.linear_model import LinearRegression as SKLinearRegression
+from tqdm import tqdm
+from sklearn.metrics import mean_squared_error
 
 class LinearRegression(object):
 	def __init__(self):
@@ -63,10 +72,9 @@ class LinearRegression(object):
 		self.m = len(x) # num samples
 		self.n = len(x.columns) # num features
 		self.weights = np.zeros(self.n + 1)
-		self.losses = []
+		self.rmses = []
 
-		for i in range(num_iterations):
-			print("Iteration", i)
+		for i in tqdm(range(num_iterations)):
 			y_predictions = self.predict(self.x)
 			dtheta_0 = (1/self.m) * np.sum(y_predictions - self.y)
 			self.weights[0] = self.weights[0] - alpha * dtheta_0
@@ -74,12 +82,9 @@ class LinearRegression(object):
 				dtheta_j = (1/self.m) * np.dot(y_predictions - self.y, self.x[:,j-1])
 				# print("dtheta_j", dtheta_j)
 				self.weights[j] = self.weights[j] - alpha * dtheta_j
-			self.losses.append(self.calculateLoss())
+			self.rmses.append(self.getRMSE())
 
-		print("Finished fitting", self.weights)
-		total_loss = self.calculateLoss()
-		print("Total loss", total_loss)
-		print("Avg loss", total_loss / self.m)
+		print("RMSE", self.getRMSE())
 		self.plotLossOverTime()
 		# self.plotPredictions()
 
@@ -95,14 +100,12 @@ class LinearRegression(object):
 		plt.plot(self.x, y_predictions)
 		plt.show()
 
-	def calculateLoss(self):
+	def getRMSE(self):
 		predictions = self.predict(self.x)
-		total_squared_loss = np.sum((predictions - self.y) ** 2)
-		total_loss = math.sqrt(total_squared_loss)
-		return total_loss
+		return math.sqrt(((self.y - predictions) ** 2).mean())
 
 	def plotLossOverTime(self):
-		plt.plot(self.losses)
+		plt.plot(self.rmses)
 		plt.show()
 
 
@@ -124,8 +127,9 @@ def main():
 	regr_model = LinearRegression()
 	regr_model.fit(x, y, .5, 20)
 
-	first_row = np.array(x.iloc[[0]])
-	prediction = regr_model.predict(first_row)
-	print(prediction)
+	sk_model = SKLinearRegression()
+	sk_model.fit(x, y)
+	y_predictions = sk_model.predict(x)
+	print("RMSE sklearn", mean_squared_error(y, y_predictions, squared=False))
 
 main()
