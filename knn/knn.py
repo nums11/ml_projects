@@ -18,6 +18,7 @@ from sklearn.model_selection import train_test_split
 from collections import Counter
 from tqdm import tqdm
 import matplotlib.pyplot as plt
+from sklearn.neighbors import KNeighborsClassifier
 
 class KNN(object):
 	def __init__(self):
@@ -77,5 +78,14 @@ def main():
 	plt.plot(k_test_values, accuracies)
 	plt.show()
 
+	# sklearn_knn = KNeighborsClassifier(n_neighbors=10)
+	# sklearn_knn.fit(x_train, np.array(y_train).flatten())
+	# predictions = sklearn_knn.predict(x_test)
+	# num_correct = 0
+	# for i in range(len(x_test)):
+	# 	if predictions[i] == y_test.iloc[i][0]:
+	# 		num_correct += 1
+	# accuracy = num_correct / len(x_test)
+	# print("sklearn accuracy", accuracy)
 
 main()
