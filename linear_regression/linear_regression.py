@@ -15,7 +15,7 @@ In Batch GD we look across all samples when updating the weight
 but in mini-batch GD you would only look across b samples where b
 is the batch size.
 
-So the linear regression algo is:
+GD With linear regression:
 initalize weights Θ_0,...,Θ_j = 0
 for some number of iterations or until convergence
 	Θ_j = Θ_j - α * ddΘ_j of J
