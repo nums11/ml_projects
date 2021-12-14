@@ -45,6 +45,21 @@ TF Learnings
 the first param as the number of rows in the data
 - When counting the num of trainable paramters don't forget that it counts the biases.
 - You can get the weights and biases for a particular layer i with model.layers[i].get_weights()
+- Binary Cross Entropy is the same as log loss
+- An iteration is the processing of a batch but an epoch is the processing of the whole training
+set. They are the same in batch GD but in mini-batch GD there are multiple iterations in
+an epoch
+- When I set the activation function to tanh sometimes it would never converge. I'm not sure
+if this was because of the learning rate or tanh
+- TF expects the data to be of the form m x n not n x m (each row is a sample not each column)
+
+Results:
+- With TF model can get around 90% accuracy after 1000 epochs with a learning rate of 0.01
+
+Still to do:
+- Fix custom model and figure out why it's not converging now. Tried changing intermediaries
+to tanh
+
 """
 
 import numpy as np
@@ -81,15 +96,15 @@ class ShallowNeuralNetwork(object):
 		for i in tqdm(range(num_iterations)):
 			self.forwardProp()
 			self.backProp()
-		# self.plotCostOverTime()
+		self.plotCostOverTime()
 
 	def forwardProp(self):
 		self.hidden_layer.Z = \
 			np.dot(self.hidden_layer.W, self.X) + self.hidden_layer.B
-		self.hidden_layer.A = sigmoid(self.hidden_layer.Z)
+		self.hidden_layer.A = np.tanh(self.hidden_layer.Z)
 		self.output_layer.Z = \
 			np.dot(self.output_layer.W, self.hidden_layer.A) + self.output_layer.B
-		self.output_layer.A = np.tanh(self.output_layer.Z)
+		self.output_layer.A = sigmoid(self.output_layer.Z)
 		self.costs.append(self.getCost(self.output_layer.A, self.Y))
 
 	def backProp(self):
@@ -97,7 +112,9 @@ class ShallowNeuralNetwork(object):
 		dW_output_layer = (1/self.m) * np.dot(dZ_output_layer, self.hidden_layer.A.T)
 		db_output_layer = (1/self.m) * np.sum(dZ_output_layer, axis=1, keepdims=True)
 		dZ_hidden_layer = \
-			np.dot(self.output_layer.W.T, dZ_output_layer) * (self.hidden_layer.A * (1 - self.hidden_layer.A))
+			np.dot(self.output_layer.W.T, dZ_output_layer) * (1 - np.power(self.hidden_layer.A,2))
+		# dZ_hidden_layer = \
+		# 	np.dot(self.output_layer.W.T, dZ_output_layer) * (self.hidden_layer.A * (1 - self.hidden_layer.A))
 		dW_hidden_layer = (1/self.m) * np.dot(dZ_hidden_layer, self.X.T)
 		db_hidden_layer = (1/self.m) * np.sum(dZ_hidden_layer, axis=1, keepdims=True)
 		self.hidden_layer.W = self.hidden_layer.W - self.learning_rate * dW_hidden_layer
@@ -115,9 +132,9 @@ class ShallowNeuralNetwork(object):
 
 	def predict(self, X):
 		hidden_layer_Z = np.dot(self.hidden_layer.W, X) + self.hidden_layer.B
-		hidden_layer_A = sigmoid(hidden_layer_Z)
+		hidden_layer_A = np.tanh(hidden_layer_Z)
 		output_layer_Z = np.dot(self.output_layer.W, hidden_layer_A) + self.output_layer.B
-		output_layer_A = np.tanh(output_layer_Z)
+		output_layer_A = sigmoid(output_layer_Z)
 		return output_layer_A
 
 	def test(self, X, Y):
@@ -147,16 +164,16 @@ def main():
 	# log_reg_classifier = LogisticRegression(random_state=0).fit(X, Y.flatten())
 	# plot_decision_boundary(lambda x: log_reg_classifier.predict(x), X.T, Y.T)
 
-	# shallow_nn = ShallowNeuralNetwork(4)
-	# shallow_nn.fit(X.T, Y.T, 0.1, 10)
+	shallow_nn = ShallowNeuralNetwork(4)
+	shallow_nn.fit(X.T, Y.T, 0.001, 1000)
 	# # print(X.T.shape)
 	# first_sample = np.array([
 	# 	[X.T[0][0]],
 	# 	[X.T[1][0]]
 	# 	])
 	# # print("First sample", first_sample)
-	# accuracy = shallow_nn.test(X.T,Y.T)
-	# print("accuracy", accuracy)
+	accuracy = shallow_nn.test(X.T,Y.T)
+	print("accuracy", accuracy)
 	# shallow_nn_predictions = shallow_nn.predict(X.T)
 	# shallow_nn_cost = shallow_nn.getCost(shallow_nn_predictions, Y.T)
 	# print(shallow_nn_cost)
@@ -164,17 +181,20 @@ def main():
 
 	# plot_decision_boundary_custom(lambda x: shallow_nn.predict(x), X.T, Y.T)
 
-	# Might need to change from tanh to sigmoid
-	# TF appears to implement where each row represents a sample and each column represents a unit
-	# Implement TF then go back and change implementation to use softmax (check that all the outputs are
-	# actually 0 to 1)
 
-	# Creating the model with 12 trainable parameters
-	model = Sequential()
-	# First parameter of shape is the number of features
-	model.add(Input(shape=(2,)))
-	model.add(Dense(4, activation='sigmoid'))
-	model.add(Dense(1, activation='tanh'))
-	model.summary()
+	# model = Sequential()
+	# model.add(Input(shape=(2,)))
+	# model.add(Dense(4, activation='sigmoid'))
+	# model.add(Dense(1, activation='tanh'))
+	# model.compile(
+	# 	optimizer=tf.keras.optimizers.Adam(learning_rate=0.01),
+	# 	loss=tf.keras.losses.BinaryCrossentropy(),
+	# 	metrics=[tf.keras.metrics.BinaryAccuracy()]
+	# )
+	# training_history = model.fit(X, Y, epochs=1000)
+	# plt.plot(training_history.history["loss"])
+	# plt.show()
+
+	# plot_decision_boundary(lambda x: model.predict(x), X.T, Y.T)
 
 main()
