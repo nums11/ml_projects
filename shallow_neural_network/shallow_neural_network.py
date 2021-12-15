@@ -79,7 +79,7 @@ of 0.1. I'm not sure why mine takes so many more epochs but I suspect that it's 
 not using any of the optimized version of GD (e.g. Adam). Still it ran through the epochs way
 faster than TF and PyTorch. TF took 7.68 seconds to run through 1000 epochs (it was printing
 way more though) and PyTorch took 105 seconds to run through 2000 epochs.
-
+- The NN performs poorly on the other datasets though... I think it needs more layers.
 """
 
 import numpy as np
@@ -170,7 +170,10 @@ def getAccuracy(y_predictions, y_test):
 
 
 def main():
-	X, Y = load_planar_dataset()
+	# X, Y = load_planar_dataset()
+	noisy_circles, noisy_moons, blobs, gaussian_quantiles, no_structure = load_extra_datasets()
+	X, Y = no_structure
+	print(X.shape, Y.shape)
 	shallow_nn = ShallowNeuralNetwork(4)
 	shallow_nn.fit(X.T, Y.T, 0.1, 10000)
 	accuracy = shallow_nn.evaluate(X.T, Y.T)
