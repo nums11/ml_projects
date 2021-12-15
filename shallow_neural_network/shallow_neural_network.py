@@ -50,11 +50,27 @@ the first param as the number of rows in the data
 set. They are the same in batch GD but in mini-batch GD there are multiple iterations in
 an epoch
 - When I set the activation function to tanh sometimes it would never converge. I'm not sure
-if this was because of the learning rate or tanh
+if this was because of the learning rate or tanh. But you are supposed to use sigmoid as
+your activation function in the output layer since the binary cross entropy loss expects
+values between 0 and 1.
 - TF expects the data to be of the form m x n not n x m (each row is a sample not each column)
+
+PyTorch Learnings
+- In tf when you're creating your layer you also specify the activation
+function. In pytorch, you specify the layer and activtion function
+separately
+- The standard way to create a NN is actually to implement a class where
+you would implement the forward method. The sequential class just seems
+to be a faster way
+- You don't define the number of units in a layer but rather the input and output shape.
+The number of output features is equivalent to the number of units. I don't like this as much.
+- You have to convert things to the special torch tensor class instead of just using a
+numpy array
 
 Results:
 - With TF model can get around 90% accuracy after 1000 epochs with a learning rate of 0.01
+- With PT was able to get similar results (around 90%) with same learning rate but it took
+around 2000 epochs. And this was with using ADAM.
 
 Still to do:
 - Fix custom model and figure out why it's not converging now. Tried changing intermediaries
@@ -70,6 +86,10 @@ from tqdm import tqdm
 import tensorflow as tf
 from tensorflow.keras import Sequential
 from tensorflow.python.keras.layers import Input, Dense
+import torch
+from torch import nn
+import torch.optim as optim
+from torch.utils.data import TensorDataset, DataLoader
 
 class Layer(object):
 	def __init__(self, num_units, num_units_in_prev_layer):
@@ -164,16 +184,16 @@ def main():
 	# log_reg_classifier = LogisticRegression(random_state=0).fit(X, Y.flatten())
 	# plot_decision_boundary(lambda x: log_reg_classifier.predict(x), X.T, Y.T)
 
-	shallow_nn = ShallowNeuralNetwork(4)
-	shallow_nn.fit(X.T, Y.T, 0.001, 1000)
+	# shallow_nn = ShallowNeuralNetwork(4)
+	# shallow_nn.fit(X.T, Y.T, 0.001, 1000)
 	# # print(X.T.shape)
 	# first_sample = np.array([
 	# 	[X.T[0][0]],
 	# 	[X.T[1][0]]
 	# 	])
 	# # print("First sample", first_sample)
-	accuracy = shallow_nn.test(X.T,Y.T)
-	print("accuracy", accuracy)
+	# accuracy = shallow_nn.test(X.T,Y.T)
+	# print("accuracy", accuracy)
 	# shallow_nn_predictions = shallow_nn.predict(X.T)
 	# shallow_nn_cost = shallow_nn.getCost(shallow_nn_predictions, Y.T)
 	# print(shallow_nn_cost)
@@ -181,20 +201,64 @@ def main():
 
 	# plot_decision_boundary_custom(lambda x: shallow_nn.predict(x), X.T, Y.T)
 
-
-	# model = Sequential()
-	# model.add(Input(shape=(2,)))
-	# model.add(Dense(4, activation='sigmoid'))
-	# model.add(Dense(1, activation='tanh'))
-	# model.compile(
-	# 	optimizer=tf.keras.optimizers.Adam(learning_rate=0.01),
-	# 	loss=tf.keras.losses.BinaryCrossentropy(),
-	# 	metrics=[tf.keras.metrics.BinaryAccuracy()]
-	# )
-	# training_history = model.fit(X, Y, epochs=1000)
-	# plt.plot(training_history.history["loss"])
-	# plt.show()
+def trainTF():
+	X, Y = load_planar_dataset()
+	model = Sequential()
+	model.add(Input(shape=(2,)))
+	model.add(Dense(4, activation='sigmoid'))
+	model.add(Dense(1, activation='sigmoid'))
+	model.compile(
+		optimizer=tf.keras.optimizers.Adam(learning_rate=0.01),
+		loss=tf.keras.losses.BinaryCrossentropy(),
+		metrics=[tf.keras.metrics.BinaryAccuracy()]
+	)
+	training_history = model.fit(X, Y, epochs=1000)
+	plt.plot(training_history.history["loss"])
+	plt.show()
 
 	# plot_decision_boundary(lambda x: model.predict(x), X.T, Y.T)
 
+def trainPyTorch():
+	torch.set_default_dtype(torch.float64)
+	X, Y = load_planar_dataset()
+	X_tensor = torch.from_numpy(X).to(torch.float64)
+	Y_tensor = torch.from_numpy(Y).to(torch.float64)
+
+	dataset = TensorDataset(X_tensor, Y_tensor)
+	training_data_loader = DataLoader(dataset, batch_size=X.shape[0], num_workers=2)
+
+	model = nn.Sequential(
+		nn.Linear(2, 4),
+		nn.Sigmoid(),
+		nn.Linear(4,1),
+		nn.Sigmoid()
+	)
+
+	lossFunc = nn.BCELoss()
+	optimizer = optim.Adam(model.parameters(), lr=0.01)
+	losses = []
+	for epoch in tqdm(range(2000)):
+		for i, data in enumerate(training_data_loader, 0):
+			inputs, labels = data
+			optimizer.zero_grad()
+
+			predictions = model(inputs)
+			loss = lossFunc(predictions, labels)
+			# Computes the gradients (derivatives)
+			loss.backward()
+			# Backpropogates
+			optimizer.step()
+			losses.append(loss.item())
+
+	plt.plot(losses)
+	plt.show()
+
+	probabilities = model(X_tensor)
+	predictions = torch.round(probabilities)
+	num_correct = (predictions == Y_tensor).float().sum()
+	accuracy = 100 * num_correct / len(dataset)
+	print(accuracy)
+
 main()
+# trainTF()
+# trainPyTorch()
