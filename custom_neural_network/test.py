@@ -14,5 +14,6 @@ def testCustomModel():
 	loss = nn.fit(X, Y, 0.0001, 100000)
 	plt.plot(loss)
 	plt.show()
+	print(nn.evaluate(X, Y, 'binary_accuracy'))
 
 testCustomModel()

@@ -7,6 +7,7 @@ from tabulate import tabulate
 from tqdm import tqdm
 from activations import activations, activation_derivatives
 from loss_functions import loss_functions
+from metrics import metrics
 
 def sigmoid(x):
   """
@@ -76,10 +77,11 @@ class CustomNeuralNetwork(object):
 			self.updateWeights()
 		return self.losses
 
-	def forwardProp(self):
+	def forwardProp(self, custom_X=None):
+		X = self.X if custom_X is None else custom_X
 		for i, layer in enumerate(self.layers):
 			if i == 0:
-				A_prev_layer = self.X
+				A_prev_layer = X
 			else:
 				A_prev_layer = self.layers[i-1].A
 			layer.Z = np.dot(layer.W, A_prev_layer) + layer.B
@@ -89,6 +91,7 @@ class CustomNeuralNetwork(object):
 
 		predictions = self.layers[-1].A
 		self.losses.append(self.loss_func(predictions, self.Y))
+		return predictions
 
 	def backProp(self):
 		for i, layer in reversed(list(enumerate(self.layers))):
@@ -113,6 +116,6 @@ class CustomNeuralNetwork(object):
 			layer.W = layer.W - self.alpha * layer.dW
 			layer.B = layer.B - self.alpha * layer.dB
 
-	# def evaluate(self, X, Y):
-	# 	predictions = self.predict(X).flatten()
-	# 	return getAccuracy(predictions, Y.flatten())
+	def evaluate(self, X, Y, metric):
+		predictions = self.forwardProp(custom_X=X.T).flatten()
+		return metrics[metric](np.rint(predictions), Y.flatten())
