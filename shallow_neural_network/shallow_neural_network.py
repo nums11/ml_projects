@@ -172,7 +172,7 @@ def getAccuracy(y_predictions, y_test):
 def main():
 	# X, Y = load_planar_dataset()
 	noisy_circles, noisy_moons, blobs, gaussian_quantiles, no_structure = load_extra_datasets()
-	X, Y = noisy_circles
+	X, Y = noisy_moons
 	print(X.shape, Y.shape)
 	shallow_nn = ShallowNeuralNetwork(4)
 	shallow_nn.fit(X.T, Y.T, 0.1, 10000)

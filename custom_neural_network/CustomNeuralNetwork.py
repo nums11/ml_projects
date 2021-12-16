@@ -63,6 +63,7 @@ class CustomNeuralNetwork(object):
 					layer_name = "Hidden " + str(i+1)
 				table.append([layer_name, layer.num_units, num_params])
 			print(tabulate(table, headers=['Layers', '# Units', '# Params'], tablefmt='orgtbl'))
+		print("-------------------------------------")
 
 	def fit(self, X, Y, alpha, epochs):
 		self.X = X.T
@@ -90,7 +91,8 @@ class CustomNeuralNetwork(object):
 			assert(layer.Z.shape == layer.A.shape)
 
 		predictions = self.layers[-1].A
-		self.losses.append(self.loss_func(predictions, self.Y))
+		if custom_X is None:
+			self.losses.append(self.loss_func(predictions, self.Y))
 		return predictions
 
 	def backProp(self):
@@ -116,6 +118,10 @@ class CustomNeuralNetwork(object):
 			layer.W = layer.W - self.alpha * layer.dW
 			layer.B = layer.B - self.alpha * layer.dB
 
+	def predict(self, X):
+		predictions = self.forwardProp(custom_X=X.T)
+		return np.rint(predictions)
+
 	def evaluate(self, X, Y, metric):
-		predictions = self.forwardProp(custom_X=X.T).flatten()
-		return metrics[metric](np.rint(predictions), Y.flatten())
+		predictions = self.predict(X).flatten()
+		return metrics[metric](predictions, Y.flatten())
