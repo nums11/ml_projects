@@ -12,9 +12,14 @@ def sigmoid(x):
 def sigmoid_derivative(sigmoid_x):
 	return sigmoid_x * (1 - sigmoid_x)
 
+def softmax(x):
+	return np.exp(x - np.max(x)) / sum(np.exp(x - np.max(x)))
+
+
 activations = {
 	'relu': relu,
-	'sigmoid': sigmoid
+	'sigmoid': sigmoid,
+	'softmax': softmax
 }
 
 activation_derivatives = {

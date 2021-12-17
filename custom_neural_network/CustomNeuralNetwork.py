@@ -28,7 +28,8 @@ class Layer(object):
 		self.Z = np.zeros((self.num_units, 1))
 		self.A = np.zeros((self.num_units, 1))
 		self.activation_func = activations[activation_func]
-		self.activation_derivative = activation_derivatives[activation_func]
+		if not activation_func == "softmax":
+			self.activation_derivative = activation_derivatives[activation_func]
 
 class CustomNeuralNetwork(object):
 	def __init__(self, loss_func):
@@ -49,7 +50,7 @@ class CustomNeuralNetwork(object):
 	
 	def summary(self):
 		print("Custom Neural Network")
-		print("-------------------------------------")
+		print("----------------------------------------------------------------------------")
 		if self.num_input_features == None or len(self.layers) == 0:
 			print("No layers")
 		else:
@@ -61,8 +62,8 @@ class CustomNeuralNetwork(object):
 					layer_name = "Output"
 				else:
 					layer_name = "Hidden " + str(i+1)
-				table.append([layer_name, layer.num_units, num_params])
-			print(tabulate(table, headers=['Layers', '# Units', '# Params'], tablefmt='orgtbl'))
+				table.append([layer_name, layer.num_units, num_params, layer.activation_func])
+			print(tabulate(table, headers=['Layers', '# Units', '# Params', 'Activation'], tablefmt='orgtbl'))
 		print("-------------------------------------")
 
 	def fit(self, X, Y, alpha, epochs):
@@ -90,7 +91,9 @@ class CustomNeuralNetwork(object):
 			assert(layer.Z.shape == (layer.W.shape[0], A_prev_layer.shape[1]))
 			assert(layer.Z.shape == layer.A.shape)
 
+		# Need to fix softmax function
 		predictions = self.layers[-1].A
+		print("predictions", predictions)
 		if custom_X is None:
 			self.losses.append(self.loss_func(predictions, self.Y))
 		return predictions

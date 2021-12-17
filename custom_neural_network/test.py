@@ -23,19 +23,17 @@ def testCustomModel():
 	noisy_circles, noisy_moons, blobs, gaussian_quantiles, no_structure = load_extra_datasets()
 	X, Y = blobs
 
-	print(Y)
-
-	# nn = CustomNeuralNetwork("binary_cross_entropy")
-	# nn.addInputLayer(2)
-	# nn.addLayer(4, "relu")
-	# nn.addLayer(1, "sigmoid")
+	nn = CustomNeuralNetwork("sparse_categorical_cross_entropy")
+	nn.addInputLayer(2)
+	nn.addLayer(4, "sigmoid")
+	nn.addLayer(1, "softmax")
 	# nn.summary()
 
-	# loss = nn.fit(X, Y, 0.01, 10000)
-	# plt.plot(loss)
-	# plt.show()
-	# print("Accuracy", nn.evaluate(X, Y, 'binary_accuracy'))
-	# plot_decision_boundary(lambda x: nn.predict(x), X.T, Y.T)
+	loss = nn.fit(X, Y, 0.01, 1)
+	plt.plot(loss)
+	plt.show()
+	print("Accuracy", nn.evaluate(X, Y, 'accuracy'))
+	plot_decision_boundary(lambda x: nn.predict(x), X.T, Y.T)
 
 def testTFModel():
 	# planar = load_planar_dataset()
@@ -50,6 +48,7 @@ def testTFModel():
 		loss=tf.keras.losses.BinaryCrossentropy(),
 		metrics=[tf.keras.metrics.BinaryAccuracy()]
 	)
+	# model.summary()
 	training_history = model.fit(X, Y, epochs=2000)
 	plt.plot(training_history.history["loss"])
 	plt.show()
