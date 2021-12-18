@@ -91,9 +91,7 @@ class CustomNeuralNetwork(object):
 			assert(layer.Z.shape == (layer.W.shape[0], A_prev_layer.shape[1]))
 			assert(layer.Z.shape == layer.A.shape)
 
-		# Need to fix softmax function
 		predictions = self.layers[-1].A
-		print("predictions", predictions)
 		if custom_X is None:
 			self.losses.append(self.loss_func(predictions, self.Y))
 		return predictions
@@ -122,9 +120,17 @@ class CustomNeuralNetwork(object):
 			layer.B = layer.B - self.alpha * layer.dB
 
 	def predict(self, X):
+		return self.forwardProp(custom_X=X.T)
+
+	def predictMultiClass(self, X):
 		predictions = self.forwardProp(custom_X=X.T)
-		return np.rint(predictions)
+		return np.argmax(predictions, axis = 0)
 
 	def evaluate(self, X, Y, metric):
-		predictions = self.predict(X).flatten()
-		return metrics[metric](predictions, Y.flatten())
+		predictions = self.predict(X)
+		return metrics[metric](predictions, Y)
+
+	def printWeightsDebug(self):
+		for i, layer in enumerate(self.layers):
+			print("Layer " + str(i) + " weights")
+			print(layer.W)

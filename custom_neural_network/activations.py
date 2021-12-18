@@ -13,8 +13,14 @@ def sigmoid_derivative(sigmoid_x):
 	return sigmoid_x * (1 - sigmoid_x)
 
 def softmax(x):
-	return np.exp(x - np.max(x)) / sum(np.exp(x - np.max(x)))
-
+  s = np.max(x, axis=1)
+  s = s[:, np.newaxis] # necessary step to do broadcasting
+  e_x = np.exp(x - s)
+  div = np.sum(e_x, axis=1)
+  div = div[:, np.newaxis] # dito
+  return e_x / div
+  # e_x = np.exp(x - np.max(x))
+  # return e_x / e_x.sum(axis=0) # only difference
 
 activations = {
 	'relu': relu,
