@@ -7,6 +7,7 @@ def BinaryAccuracy(predictions, labels):
 	return num_correct / len(labels)
 
 def CategoricalAccuracy(predictions, labels):
+	labels = labels.T
 	predictions = np.argmax(predictions, axis = 0).flatten()
 	labels = np.argmax(labels, axis = 0).flatten()
 	return BinaryAccuracy(predictions, labels)

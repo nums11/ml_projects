@@ -122,10 +122,6 @@ class CustomNeuralNetwork(object):
 	def predict(self, X):
 		return self.forwardProp(custom_X=X.T)
 
-	def predictMultiClass(self, X):
-		predictions = self.forwardProp(custom_X=X.T)
-		return np.argmax(predictions, axis = 0)
-
 	def evaluate(self, X, Y, metric):
 		predictions = self.predict(X)
 		return metrics[metric](predictions, Y)
