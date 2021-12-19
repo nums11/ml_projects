@@ -12,8 +12,11 @@ def CategoricalCrossEntropy(predictions, Y):
 	epsilon = 1e-5
 	return (-1/m) * np.sum(Y * np.log(predictions + epsilon))
 
+def SparseCategoricalCrossEntropy(predictions, Y):
+	return CategoricalCrossEntropy(predictions, Y)
+
 loss_functions = {
 	'binary_cross_entropy': binaryCrossEntroypy,
 	'categorical_cross_entropy': CategoricalCrossEntropy,
-	'sparse_categorical_cross_entropy': CategoricalCrossEntropy
+	'sparse_categorical_cross_entropy': SparseCategoricalCrossEntropy
 }

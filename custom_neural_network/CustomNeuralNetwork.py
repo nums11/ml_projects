@@ -70,6 +70,7 @@ class CustomNeuralNetwork(object):
 	def fit(self, X, Y, alpha, epochs):
 		self.X = X.T
 		if self.loss_func == loss_functions["sparse_categorical_cross_entropy"]:
+			print("Going to one hot")
 			Y = oneHot(Y)
 		self.Y = Y.T
 		self.alpha = alpha
