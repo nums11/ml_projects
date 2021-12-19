@@ -8,6 +8,7 @@ from tqdm import tqdm
 from activations import activations, activation_derivatives
 from loss_functions import loss_functions
 from metrics import metrics
+from helpers import oneHot
 
 def sigmoid(x):
   """
@@ -68,6 +69,8 @@ class CustomNeuralNetwork(object):
 
 	def fit(self, X, Y, alpha, epochs):
 		self.X = X.T
+		if self.loss_func == loss_functions["sparse_categorical_cross_entropy"]:
+			Y = oneHot(Y)
 		self.Y = Y.T
 		self.alpha = alpha
 		self.m = len(self.X)

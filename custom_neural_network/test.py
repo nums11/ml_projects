@@ -12,11 +12,14 @@ for multi-class classification not tf accuracy
 - Relu appears to converge a lot faster than sigmoid
 - Make sure you are using either categorical or sparse_categorical correctly because
 results will be incorrect otherwise.
+- Softmax implementation I grabbed online was wrong.
+- You need to train your model to output a shape that is the same as the labels
 
 ToDo:
-- Fix custom model
+- Get sparse to work on custom model
 - Test with PT
 - Test remaining datasets
+- then go do CNNs
 """
 
 from planar_data_utils import *
@@ -26,8 +29,7 @@ import tensorflow as tf
 from tensorflow.keras import Sequential
 from tensorflow.python.keras.layers import Input, Dense
 
-# Fix definition of the categorical_cross_entropy function but it might
-# be the same for sparse
+# Get sparse to work
 def testCustomModel():
 	# planar = load_planar_dataset()
 	noisy_circles, noisy_moons, blobs, gaussian_quantiles, no_structure = load_extra_datasets()
@@ -39,20 +41,29 @@ def testCustomModel():
 	# nn.addLayer(4, "sigmoid")
 	# nn.addLayer(1, "sigmoid")
 
-	nn = CustomNeuralNetwork("categorical_cross_entropy")
+	# nn = CustomNeuralNetwork("categorical_cross_entropy")
+	# nn.addInputLayer(2)
+	# nn.addLayer(4, "sigmoid")
+	# nn.addLayer(6, "softmax")
+	# # nn.summary()
+
+	# loss = nn.fit(X, Y_one_hot, 0.01, 1000)
+	# plt.plot(loss)
+	# plt.show()
+	# print("Accuracy", nn.evaluate(X, Y_one_hot, 'categorical_accuracy'))
+
+	nn = CustomNeuralNetwork("sparse_categorical_cross_entropy")
 	nn.addInputLayer(2)
-	nn.addLayer(4, "relu")
+	nn.addLayer(4, "sigmoid")
 	nn.addLayer(6, "softmax")
 	# nn.summary()
 
-	loss = nn.fit(X, Y_one_hot, 0.01, 20)
+	loss = nn.fit(X, Y, 0.01, 1000)
 	plt.plot(loss)
 	plt.show()
-	print("Accuracy", nn.evaluate(X, Y_one_hot, 'categorical_accuracy'))
-	# nn.printWeightsDebug()
-	# plot_decision_boundary(lambda x: nn.predict(x), X.T, Y.T)
+	print("Accuracy", nn.evaluate(X, Y, 'sparse_categorical_accuracy'))
+	# plot_decision_boundary(lambda x: nn.predict(x), X, Y_one_hot)
 
-# Figure out how to get sparse categorical cross entropy to work (I think I would need to change my output)
 def testTFModel():
 	# planar = load_planar_dataset()
 	noisy_circles, noisy_moons, blobs, gaussian_quantiles, no_structure = load_extra_datasets()

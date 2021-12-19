@@ -1,4 +1,5 @@
 import numpy as np
+from helpers import oneHot
 
 def BinaryAccuracy(predictions, labels):
 	predictions = np.rint(predictions.flatten())
@@ -12,7 +13,11 @@ def CategoricalAccuracy(predictions, labels):
 	labels = np.argmax(labels, axis = 0).flatten()
 	return BinaryAccuracy(predictions, labels)
 
+def SparseCategoricalAccuracy(predictions, labels):
+	return CategoricalAccuracy(predictions, oneHot(labels))
+
 metrics = {
 	'binary_accuracy': BinaryAccuracy,
-	'categorical_accuracy': CategoricalAccuracy
+	'categorical_accuracy': CategoricalAccuracy,
+	'sparse_categorical_accuracy': SparseCategoricalAccuracy
 }
