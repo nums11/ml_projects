@@ -1,5 +1,5 @@
 import numpy as np
-from helpers import oneHot
+from ml_projects.custom_neural_network.helpers import oneHot
 
 def BinaryAccuracy(predictions, labels):
 	predictions = np.rint(predictions.flatten())

@@ -5,10 +5,10 @@ Custom Neural Network with the ability to add N layers
 import numpy as np
 from tabulate import tabulate
 from tqdm import tqdm
-from activations import activations, activation_derivatives
-from loss_functions import loss_functions
-from metrics import metrics
-from helpers import oneHot
+from ml_projects.custom_neural_network.activations import activations, activation_derivatives
+from ml_projects.custom_neural_network.loss_functions import loss_functions
+from ml_projects.custom_neural_network.metrics import metrics
+from ml_projects.custom_neural_network.helpers import oneHot
 
 def sigmoid(x):
   """
