@@ -23,6 +23,8 @@ only count layers as layers with weights so they don't count the pooling layer a
 ToDo:
 - Test it out against KNN?
 - Try on other image datasets not just MNIST?
+- Create my own dataset and try it?
+- Try it on letters and Japanese characters
 """
 
 import numpy as np
