@@ -9,6 +9,7 @@ from ml_projects.custom_neural_network.activations import activations, activatio
 from ml_projects.custom_neural_network.loss_functions import loss_functions
 from ml_projects.custom_neural_network.metrics import metrics
 from ml_projects.custom_neural_network.helpers import oneHot
+from ml_projects.custom_neural_network.layers import *
 
 def sigmoid(x):
   """
@@ -21,17 +22,6 @@ def sigmoid(x):
   s = 1/(1+np.exp(-x))
   return s
 
-class Layer(object):
-	def __init__(self, num_units, num_units_in_prev_layer, activation_func):
-		self.num_units = num_units
-		self.W = np.random.randn(self.num_units, num_units_in_prev_layer) * 0.01
-		self.B = np.random.randn(self.num_units, 1) * 0.01
-		self.Z = np.zeros((self.num_units, 1))
-		self.A = np.zeros((self.num_units, 1))
-		self.activation_func = activations[activation_func]
-		if not activation_func == "softmax":
-			self.activation_derivative = activation_derivatives[activation_func]
-
 class CustomNeuralNetwork(object):
 	def __init__(self, loss_func):
 		self.layers = []
@@ -41,13 +31,17 @@ class CustomNeuralNetwork(object):
 	def addInputLayer(self, num_features):
 		self.num_input_features = num_features
 
-	def addLayer(self, num_units, activation_func):
-		num_units_in_prev_layer = None
-		if len(self.layers) > 0:
-			num_units_in_prev_layer = self.layers[-1].num_units
-		else:
-			num_units_in_prev_layer = self.num_input_features
-		self.layers.append(Layer(num_units, num_units_in_prev_layer, activation_func))
+	# def addLayer(self, num_units, activation_func):
+	# 	num_units_in_prev_layer = None
+	# 	if len(self.layers) > 0:
+	# 		num_units_in_prev_layer = self.layers[-1].num_units
+	# 	else:
+	# 		num_units_in_prev_layer = self.num_input_features
+	# 	self.layers.append(Layer(num_units, num_units_in_prev_layer, activation_func))
+
+	def add(self, layer):
+		layer.initWeightMatrix(self.num_input_features, self.layers)
+		self.layers.append(layer)
 	
 	def summary(self):
 		print("Custom Neural Network")
@@ -58,13 +52,20 @@ class CustomNeuralNetwork(object):
 			table = []
 			for i, layer in enumerate(self.layers):
 				num_params = layer.W.shape[0] * layer.W.shape[1] + layer.B.shape[0]
-				layer_name = None
-				if i == len(self.layers) - 1:
-					layer_name = "Output"
+				layer_type = None
+				if isinstance(layer, Dense):
+					layer_type = "Dense"
 				else:
-					layer_name = "Hidden " + str(i+1)
-				table.append([layer_name, layer.num_units, num_params, layer.activation_func])
-			print(tabulate(table, headers=['Layers', '# Units', '# Params', 'Activation'], tablefmt='orgtbl'))
+					layer_type = "Conv2D"
+				layer_activation = None
+				if layer.activation_func == activations["relu"]:
+					layer_activation = "ReLU"
+				elif layer.activation_func == activations["sigmoid"]:
+					layer_activation = "Sigmoid"
+				elif layer.activation_func == activations["softmax"]:
+					layer_activation = "Softmax"
+				table.append([layer_type, layer.num_units, num_params, layer_activation])
+			print(tabulate(table, headers=['Layer Type', '# Units', '# Params', 'Activation'], tablefmt='orgtbl'))
 		print("-------------------------------------")
 
 	def fit(self, X, Y, alpha, epochs):

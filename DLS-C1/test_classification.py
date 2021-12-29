@@ -21,6 +21,7 @@ just use the custom model I built myself.
 import sys
 sys.path.append('../')
 from ml_projects.custom_neural_network.CustomNeuralNetwork import CustomNeuralNetwork
+from ml_projects.custom_neural_network.layers import Dense as CustomDense
 from planar_data_utils import *
 import matplotlib.pyplot as plt
 import tensorflow as tf
@@ -48,14 +49,14 @@ def testCustomModel():
 
 	nn = CustomNeuralNetwork("categorical_cross_entropy")
 	nn.addInputLayer(2)
-	nn.addLayer(4, "sigmoid")
-	nn.addLayer(6, "softmax")
-	# nn.summary()
+	nn.add(CustomDense(4, "sigmoid"))
+	nn.add(CustomDense(6, "softmax"))
+	nn.summary()
 
-	# loss = nn.fit(X, Y_one_hot, 0.01, 1000)
-	# plt.plot(loss)
-	# plt.show()
-	# print("Accuracy", nn.evaluate(X, Y_one_hot, 'categorical_accuracy'))
+	loss = nn.fit(X, Y_one_hot, 0.01, 1000)
+	plt.plot(loss)
+	plt.show()
+	print("Accuracy", nn.evaluate(X, Y_one_hot, 'categorical_accuracy'))
 
 	# nn = CustomNeuralNetwork("categorical_cross_entropy")
 	# nn.addInputLayer(2)
