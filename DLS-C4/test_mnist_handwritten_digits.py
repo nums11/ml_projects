@@ -31,11 +31,11 @@ may have to reshape data. Additionally you don't need to add an input layer.
 - Normalizing values can give slightly better accuracy
 
 ToDo:
-- Test it out against KNN?
+- Implement my own conv and pooling layers
 - Try on other image datasets not just MNIST?
-- Create my own dataset and try it?
+	- Fashion MNIST?
+- Create my own dataset and try it (like write my own digits)?
 - Try it on letters and Japanese characters
-- Fashion MNIST?
 - Adding batch GD?
 """
 
