@@ -28,8 +28,14 @@ class CustomNeuralNetwork(object):
 		self.num_input_features = None
 		self.loss_func = loss_functions[loss_func]
 
-	def addInputLayer(self, num_features):
-		self.num_input_features = num_features
+	def addInputLayer(self, input_shape):
+		num_dimensions = len(input_shape)
+		if num_dimensions == 1: # tabular data
+			self.num_input_features = input_shape[0]
+		elif num_dimensions == 3: # images
+			self.input_shape = input_shape
+		else:
+			raise Exception("Input shape must be either 1 or 3 dimensional. Got shape", input_shape)
 
 	def add(self, layer):
 		if isinstance(layer, Dense):
@@ -68,7 +74,6 @@ class CustomNeuralNetwork(object):
 	def fit(self, X, Y, alpha, epochs):
 		self.X = X.T
 		if self.loss_func == loss_functions["sparse_categorical_cross_entropy"]:
-			print("Going to one hot")
 			Y = oneHot(Y)
 		self.Y = Y.T
 		self.alpha = alpha

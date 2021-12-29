@@ -48,7 +48,7 @@ def testCustomModel():
 	# nn.addLayer(1, "sigmoid")
 
 	nn = CustomNeuralNetwork("categorical_cross_entropy")
-	nn.addInputLayer(2)
+	nn.addInputLayer((2,))
 	nn.add(CustomDense(4, "sigmoid"))
 	nn.add(CustomDense(6, "softmax"))
 	nn.summary()
@@ -161,6 +161,6 @@ def testPytorchModel():
 	# accuracy = num_correct / len(Y)
 	# print("accuracy", accuracy)
 
-# testCustomModel()
-testTFModel()
+testCustomModel()
+# testTFModel()
 # testPytorchModel()

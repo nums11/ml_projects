@@ -56,12 +56,12 @@ num_classes = 10
 
 def testCustomModel():
 	nn = CustomNeuralNetwork("sparse_categorical_cross_entropy")
-	nn.addInputLayer(2)
+	nn.addInputLayer((28,28,1))
 	nn.add(CustomConv2D(10, 3, "relu"))
 	# nn.add(CustomDense(4, "sigmoid"))
 	# nn.add(CustomDense(6, "softmax"))
-	nn.summary()
-
+	# nn.summary()
+	nn.fit(X_train, Y_train, 0.01, 1)
 
 def displayDataPoint(index):
 	plt.imshow(X_train[index], cmap=plt.get_cmap('gray'))
