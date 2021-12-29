@@ -9,8 +9,8 @@ Results:
 - Surprisingly, with such a simple conv architecture that just has 1 hidden layer that
 does a convolution with 1 3x3 filter is able to reach around 86% accuracy after just 6
 iterations. I'm also surprised how slow it trains. Maybe it's because there's so many samples?
-- TF1, 15 epochs: 89% accuracy
-- TF1, 30 epochs: 90% accuracy
+- TF, 5 epochs: 92% accuracy
+- TFLeNet, 5 epochs, lr 0.001: 94% accuracy
 
 Learnings:
 - The main difference between CNNs and FFNNs is that the calculation for Z is not W * X + b but
@@ -43,21 +43,22 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
 from tensorflow.keras import Sequential
-from tensorflow.python.keras.layers import Input, Dense, Conv2D, Flatten
+from tensorflow.python.keras.layers import Input, Dense, Conv2D, Flatten, AveragePooling2D, Activation
 from tensorflow.keras.datasets import mnist
-(X_train, Y_train), (X_test, Y_test) = mnist.load_data()
 
-X_train = X_train.reshape(-1, 28, 28, 1) / 255
-X_train = tf.cast(X_train, tf.float64)
-X_test = X_test.reshape(-1, 28, 28, 1) / 255
-X_test = tf.cast(X_test, tf.float64)
+(X_train, Y_train), (X_test, Y_test) = mnist.load_data()
 num_classes = 10
 
 def displayDataPoint(index):
 	plt.imshow(X_train[index], cmap=plt.get_cmap('gray'))
 	plt.show()
 
-def testTF1():
+def testTF():
+	X_train = X_train.reshape(-1, 28, 28, 1)
+	X_train = tf.cast(X_train, tf.float64)
+	X_test = X_test.reshape(-1, 28, 28, 1)
+	X_test = tf.cast(X_test, tf.float64)
+
 	model = Sequential()
 	model.add(Conv2D(1, 3, activation='relu'))
 	model.add(Flatten())
@@ -81,36 +82,43 @@ def testTF1():
 	plt.show()
 	print(model.evaluate(X_test, Y_test, return_dict=True)['sparse_categorical_accuracy'])
 
-def testTFLeNet1():
+def testTFLeNet1(x_train, y_train, x_test, y_test):
+	# Pad images to be 32 x 32 as per original LeNet
+	X_train = tf.pad(x_train, [[0, 0], [2,2], [2,2]]) / 255
+	X_test = tf.pad(x_test, [[0, 0], [2,2], [2,2]]) / 255
+	X_train = tf.cast(tf.expand_dims(X_train, axis=3, name=None), tf.float64)
+	X_test = tf.cast(tf.expand_dims(X_test, axis=3, name=None), tf.float64)
 
 	model = Sequential()
-	model.add(layers.Conv2D(6, 5, activation='tanh', input_shape=x_train.shape[1:]))
-	model.add(layers.AveragePooling2D(2))
-	model.add(layers.Activation('sigmoid'))
-	model.add(layers.Conv2D(16, 5, activation='tanh'))
-	model.add(layers.AveragePooling2D(2))
-	model.add(layers.Activation('sigmoid'))
-	model.add(layers.Conv2D(120, 5, activation='tanh'))
-	model.add(layers.Flatten())
-	model.add(layers.Dense(84, activation='tanh'))
-	model.add(layers.Dense(10, activation='softmax'))
+	model.add(Input(shape=(32,32,1)))
+	model.add(Conv2D(6, 5, activation='tanh'))
+	model.add(AveragePooling2D(2))
+	model.add(Activation('sigmoid'))
+	model.add(Conv2D(16, 5, activation='tanh'))
+	model.add(AveragePooling2D(2))
+	model.add(Activation('sigmoid'))
+	model.add(Conv2D(120, 5, activation='tanh'))
+	model.add(Flatten())
+	model.add(Dense(84, activation='tanh'))
+	model.add(Dense(10, activation='softmax'))
+	model.compile(
+		optimizer=tf.keras.optimizers.Adam(),
+		loss=tf.keras.losses.SparseCategoricalCrossentropy(),
+		metrics=[tf.keras.metrics.SparseCategoricalAccuracy()]
+	)
 	model.summary()
+	history = model.fit(X_train, Y_train, epochs=5, validation_data=(X_test, Y_test))
+	fig, axs = plt.subplots(2, 1, figsize=(15,15))
+	axs[0].plot(history.history['loss'])
+	axs[0].plot(history.history['val_loss'])
+	axs[0].title.set_text('Training Loss vs Validation Loss')
+	axs[0].legend(['Train', 'Val'])
+	axs[1].plot(history.history['sparse_categorical_accuracy'])
+	axs[1].plot(history.history['val_sparse_categorical_accuracy'])
+	axs[1].title.set_text('Training Accuracy vs Validation Accuracy')
+	axs[1].legend(['Train', 'Val'])
+	plt.show()
+	print(model.evaluate(X_test, Y_test, return_dict=True)['sparse_categorical_accuracy'])
 
-	# model = Sequential()
-	# # model.add(Input(shape=(1,28,28)))
-	# model.add(Conv2D(4, 24, activation='relu'))
-	# model.add(Flatten())
-	# model.add(Dense(num_classes, activation='softmax'))
-	# model.compile(
-	# 	optimizer=tf.keras.optimizers.Adam(learning_rate=0.01),
-	# 	loss=tf.keras.losses.SparseCategoricalCrossentropy(),
-	# 	metrics=[tf.keras.metrics.SparseCategoricalAccuracy()]
-	# )
-	# # model.summary()
-	# training_history = model.fit(X_train, Y_train, epochs=30)
-	# plt.plot(training_history.history["loss"])
-	# plt.show()
-	# print(model.evaluate(X_test, Y_test, return_dict=True)['sparse_categorical_accuracy'])
-
-testTF1()
-# testTFLeNet1()
+# testTF()
+testTFLeNet1(X_train, Y_train, X_test, Y_test)
