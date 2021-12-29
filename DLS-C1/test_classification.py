@@ -100,11 +100,11 @@ def testTFModel():
 		loss=tf.keras.losses.SparseCategoricalCrossentropy(),
 		metrics=[tf.keras.metrics.SparseCategoricalAccuracy()]
 	)
-	# model.summary()
-	training_history = model.fit(X, Y, epochs=1000)
-	plt.plot(training_history.history["loss"])
-	plt.show()
-	print(model.evaluate(X, Y, return_dict=True)['sparse_categorical_accuracy'])
+	model.summary()
+	# training_history = model.fit(X, Y, epochs=1000)
+	# plt.plot(training_history.history["loss"])
+	# plt.show()
+	# print(model.evaluate(X, Y, return_dict=True)['sparse_categorical_accuracy'])
 	# plot_decision_boundary(lambda x: model.predict(x), X.T, Y.T)
 
 def testPytorchModel():
@@ -161,6 +161,6 @@ def testPytorchModel():
 	# accuracy = num_correct / len(Y)
 	# print("accuracy", accuracy)
 
-testCustomModel()
-# testTFModel()
+# testCustomModel()
+testTFModel()
 # testPytorchModel()

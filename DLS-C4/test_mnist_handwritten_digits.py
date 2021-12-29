@@ -39,6 +39,11 @@ ToDo:
 - Adding batch GD?
 """
 
+import sys
+sys.path.append('../')
+from ml_projects.custom_neural_network.CustomNeuralNetwork import CustomNeuralNetwork
+from ml_projects.custom_neural_network.layers import Dense as CustomDense
+from ml_projects.custom_neural_network.layers import Conv2D as CustomConv2D
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
@@ -48,6 +53,15 @@ from tensorflow.keras.datasets import mnist
 
 (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
 num_classes = 10
+
+def testCustomModel():
+	nn = CustomNeuralNetwork("sparse_categorical_cross_entropy")
+	nn.addInputLayer(2)
+	nn.add(CustomConv2D(10, 3, "relu"))
+	# nn.add(CustomDense(4, "sigmoid"))
+	# nn.add(CustomDense(6, "softmax"))
+	nn.summary()
+
 
 def displayDataPoint(index):
 	plt.imshow(X_train[index], cmap=plt.get_cmap('gray'))
@@ -121,4 +135,5 @@ def testTFLeNet1(x_train, y_train, x_test, y_test):
 	# print(model.evaluate(X_test, Y_test, return_dict=True)['sparse_categorical_accuracy'])
 
 # testTF()
-testTFLeNet1(X_train, Y_train, X_test, Y_test)
+# testTFLeNet1(X_train, Y_train, X_test, Y_test)
+testCustomModel()

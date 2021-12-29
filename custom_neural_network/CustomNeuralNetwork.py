@@ -31,32 +31,28 @@ class CustomNeuralNetwork(object):
 	def addInputLayer(self, num_features):
 		self.num_input_features = num_features
 
-	# def addLayer(self, num_units, activation_func):
-	# 	num_units_in_prev_layer = None
-	# 	if len(self.layers) > 0:
-	# 		num_units_in_prev_layer = self.layers[-1].num_units
-	# 	else:
-	# 		num_units_in_prev_layer = self.num_input_features
-	# 	self.layers.append(Layer(num_units, num_units_in_prev_layer, activation_func))
-
 	def add(self, layer):
-		layer.initWeightMatrix(self.num_input_features, self.layers)
+		if isinstance(layer, Dense):
+			layer.initWeightMatrix(self.num_input_features, self.layers)
 		self.layers.append(layer)
 	
 	def summary(self):
 		print("Custom Neural Network")
-		print("----------------------------------------------------------------------------")
 		if self.num_input_features == None or len(self.layers) == 0:
 			print("No layers")
 		else:
 			table = []
 			for i, layer in enumerate(self.layers):
-				num_params = layer.W.shape[0] * layer.W.shape[1] + layer.B.shape[0]
 				layer_type = None
 				if isinstance(layer, Dense):
 					layer_type = "Dense"
+					num_params = layer.W.shape[0] * layer.W.shape[1] + layer.B.shape[0]
+					output_shape = (layer.num_units, None)
 				else:
 					layer_type = "Conv2D"
+					num_params = layer.num_filters * layer.filter_size * layer.filter_size + layer.num_filters
+					output_shape = (layer.filter_size, layer.filter_size, layer.num_filters, None)
+
 				layer_activation = None
 				if layer.activation_func == activations["relu"]:
 					layer_activation = "ReLU"
@@ -64,9 +60,10 @@ class CustomNeuralNetwork(object):
 					layer_activation = "Sigmoid"
 				elif layer.activation_func == activations["softmax"]:
 					layer_activation = "Softmax"
-				table.append([layer_type, layer.num_units, num_params, layer_activation])
-			print(tabulate(table, headers=['Layer Type', '# Units', '# Params', 'Activation'], tablefmt='orgtbl'))
-		print("-------------------------------------")
+
+
+				table.append([layer_type, output_shape, num_params, layer_activation])
+			print(tabulate(table, headers=['Layer Type', 'Output Shape', '# Params', 'Activation'], tablefmt='pretty'))
 
 	def fit(self, X, Y, alpha, epochs):
 		self.X = X.T
