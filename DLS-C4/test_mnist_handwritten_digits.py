@@ -100,6 +100,12 @@ def testCustomModel():
 	# There's an issue with the transpose of the 3d matrix
 	# Will have to figure this out as well as how to properly grab one sample from the transposed matrix
 	# My hunch is that the rows and columns are getting switched somehow
+	# Just needed to swap axes since rows and columns were getting interchanged. Next make sure this
+	# is done in the fit method then select one sample and start implementing the convolution operator.
+	# Implement iteratively then vectorize all calculations at once, then vectorize across samples.
+	# Then make sure it works for padding and strides
+	# Then add other types of layers like max pooling and avg pooling
+	# Then test it out.
 
 	# X_T = X_train.T
 	# print("after", X_T[:,:,0])
