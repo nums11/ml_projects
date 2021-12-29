@@ -8,7 +8,7 @@ from tqdm import tqdm
 from ml_projects.custom_neural_network.activations import activations, activation_derivatives
 from ml_projects.custom_neural_network.loss_functions import loss_functions
 from ml_projects.custom_neural_network.metrics import metrics
-from ml_projects.custom_neural_network.helpers import oneHot
+from ml_projects.custom_neural_network.helpers import *
 from ml_projects.custom_neural_network.layers import *
 
 def sigmoid(x):
@@ -80,11 +80,11 @@ class CustomNeuralNetwork(object):
 		self.m = len(self.X)
 
 		self.losses = []
-		for epoch in tqdm(range(epochs)):
-			self.forwardProp()
-			self.backProp()
-			self.updateWeights()
-		return self.losses
+		# for epoch in tqdm(range(epochs)):
+		# 	self.forwardProp()
+		# 	# self.backProp()
+		# 	# self.updateWeights()
+		# return self.losses
 
 	def forwardProp(self, custom_X=None):
 		X = self.X if custom_X is None else custom_X
@@ -93,15 +93,19 @@ class CustomNeuralNetwork(object):
 				A_prev_layer = X
 			else:
 				A_prev_layer = self.layers[i-1].A
-			layer.Z = np.dot(layer.W, A_prev_layer) + layer.B
-			layer.A =  layer.activation_func(layer.Z)
-			assert(layer.Z.shape == (layer.W.shape[0], A_prev_layer.shape[1]))
-			assert(layer.Z.shape == layer.A.shape)
 
-		predictions = self.layers[-1].A
-		if custom_X is None:
-			self.losses.append(self.loss_func(predictions, self.Y))
-		return predictions
+			if isinstance(layer, Dense):
+				layer.Z = np.dot(layer.W, A_prev_layer) + layer.B
+				layer.A =  layer.activation_func(layer.Z)
+				assert(layer.Z.shape == (layer.W.shape[0], A_prev_layer.shape[1]))
+				assert(layer.Z.shape == layer.A.shape)
+			else:
+				layer.Z = convolve(A_prev_layer,layer.W)
+
+		# predictions = self.layers[-1].A
+		# if custom_X is None:
+		# 	self.losses.append(self.loss_func(predictions, self.Y))
+		# return predictions
 
 	def backProp(self):
 		for i, layer in reversed(list(enumerate(self.layers))):

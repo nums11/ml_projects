@@ -55,13 +55,60 @@ from tensorflow.keras.datasets import mnist
 num_classes = 10
 
 def testCustomModel():
+	test_mat = np.array([
+		[3,5,1,4,6],
+		[2,9,7,8,1],
+		[0,4,1,3,1],
+		[5,6,0,4,2],
+		[7,8,9,5,3]
+	])
+
+	test_2 = np.array([
+		[3,5,1],
+		[2,9,7],
+		[0,4,1],
+	])
+
+	test_3 = np.array([
+		[1.764, 0.4, 0.978],
+		[2.240, 1.867, -0.977],
+		[0.950, -0.151, -0.103]
+	])
+
+	# print(np.vdot(test_2, test_3))
+
 	nn = CustomNeuralNetwork("sparse_categorical_cross_entropy")
 	nn.addInputLayer((28,28,1))
-	nn.add(CustomConv2D(10, 3, "relu"))
+	nn.add(CustomConv2D(1, 3, "relu"))
 	# nn.add(CustomDense(4, "sigmoid"))
 	# nn.add(CustomDense(6, "softmax"))
 	# nn.summary()
-	nn.fit(X_train, Y_train, 0.01, 1)
+	# print("Before", X_train[0])
+	# print("Before X shape", X_train.shape)
+	# print("Before 0 shape", X_train[0].shape)
+	# print("X[0]", X_train[0])
+	# print("X[0,:,:]", X_train[0,:,:])
+	# print(np.allclose(X_train[0], X_train[0,:,:]))
+
+	print("X", X_train[0,:,:])
+	X_transpose = X_train.T
+	X_transpose = np.swapaxes(X_transpose,0,1)
+
+	print("X_transpose", X_transpose[:,:,0])
+
+
+	# There's an issue with the transpose of the 3d matrix
+	# Will have to figure this out as well as how to properly grab one sample from the transposed matrix
+	# My hunch is that the rows and columns are getting switched somehow
+
+	# X_T = X_train.T
+	# print("after", X_T[:,:,0])
+	# print("After X shape", X_T.shape)
+	# print("After 0 shape", X_T[:,:,0].shape)
+
+	# print(np.allclose(X_train[0], X_T[:,:,0]))
+
+	# nn.fit(X_train, Y_train, 0.01, 1)
 
 def displayDataPoint(index):
 	plt.imshow(X_train[index], cmap=plt.get_cmap('gray'))

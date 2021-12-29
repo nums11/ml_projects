@@ -23,10 +23,8 @@ class Conv2D(object):
 	def __init__(self, num_filters, filter_size, activation_func):
 		self.num_filters = num_filters
 		self.filter_size = filter_size
-		self.filters = [self.Filter(filter_size) for _ in range(num_filters)]
+		np.random.seed(0)
+		self.W = np.random.randn(num_filters, filter_size, filter_size)
+		print(self.W)
+		print(self.W.shape)
 		self.activation_func = activations[activation_func]
-
-	class Filter(object):
-		def __init__(self, filter_size):
-			self.W = np.random.randn(filter_size, filter_size) * 0.01
-			self.B = np.random.randn() * 0.01
