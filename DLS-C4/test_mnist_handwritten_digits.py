@@ -32,9 +32,11 @@ may have to reshape data. Additionally you don't need to add an input layer.
 - Understand element-wise multiplication (* & np.multiply) vs dot product, vs matrix multiplication.
 
 ToDo:
-- Add b to finish Z calculation
 - Verify that all calculations are actually corect with a 5x5 image (might need to grab
 a new dataset or just make a random 5x5 image)
+- Vectorize across samples
+- Verify that the calculations are correct when vectorized across samples
+- Test it out
 
 
 	# Then make sure it works for padding and strides
@@ -109,13 +111,13 @@ def testCustomModel():
 	# print(random + b)
 	# print(np.array(b).shape)
 
-	nn = CustomNeuralNetwork("sparse_categorical_cross_entropy")
-	nn.addInputLayer((28,28,1))
-	nn.add(CustomConv2D(2, 3, "relu"))
-	# # nn.add(CustomDense(4, "sigmoid"))
-	# # nn.add(CustomDense(6, "softmax"))
-	# # nn.summary()
-	nn.fit(X_train, Y_train, 0.01, 1)
+	# nn = CustomNeuralNetwork("sparse_categorical_cross_entropy")
+	# nn.addInputLayer((28,28,1))
+	# nn.add(CustomConv2D(2, 3, "relu"))
+	# # # nn.add(CustomDense(4, "sigmoid"))
+	# # # nn.add(CustomDense(6, "softmax"))
+	# # # nn.summary()
+	# nn.fit(X_train, Y_train, 0.01, 1)
 
 def displayDataPoint(index):
 	plt.imshow(X_train[index], cmap=plt.get_cmap('gray'))

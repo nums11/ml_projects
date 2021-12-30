@@ -15,13 +15,21 @@ def sigmoid_derivative(sigmoid_x):
 def softmax(x):
   return np.exp(x) / np.sum(np.exp(x), axis=0)
 
+def tanh(x):
+	return (np.exp(x)-np.exp(-x)) / (np.exp(x)+np.exp(-x))
+
+def tanh_derivative(tanh_x):
+	return 1 - tanh_x**2
+
 activations = {
 	'relu': relu,
 	'sigmoid': sigmoid,
-	'softmax': softmax
+	'softmax': softmax,
+	'tanh': tanh
 }
 
 activation_derivatives = {
 	'relu': relu_derivative,
-	'sigmoid': sigmoid_derivative
+	'sigmoid': sigmoid_derivative,
+	'tanh': tanh_derivative
 }

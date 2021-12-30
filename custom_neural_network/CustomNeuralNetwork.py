@@ -105,6 +105,9 @@ class CustomNeuralNetwork(object):
 				assert(layer.Z.shape == layer.A.shape)
 			else:
 				layer.Z = convolve(A_prev_layer, layer)
+				layer.A = layer.activation_func(layer.Z)
+				print("A")
+				print(layer.A)
 
 		# predictions = self.layers[-1].A
 		# if custom_X is None:
