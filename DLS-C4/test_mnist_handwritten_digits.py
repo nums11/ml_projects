@@ -29,8 +29,14 @@ only count layers as layers with weights so they don't count the pooling layer a
 - When passing images to TF, it expects a 4-d array (you have to specify the number of channels) so you
 may have to reshape data. Additionally you don't need to add an input layer.
 - Normalizing values can give slightly better accuracy
+- Understand element-wise multiplication (* & np.multiply) vs dot product, vs matrix multiplication.
 
 ToDo:
+	# Implement iteratively then vectorize all calculations at once, then vectorize across samples.
+	# Then make sure it works for padding and strides
+	# Then add other types of layers like max pooling and avg pooling
+	# Then test it out.
+
 - Implement my own conv and pooling layers
 - Try on other image datasets not just MNIST?
 	- Fashion MNIST?
@@ -63,6 +69,15 @@ def testCustomModel():
 		[7,8,9,5,3]
 	])
 
+
+	# Get top left 3x3 slice of the 5x5 matrix
+	# print(test_mat[0:3,0:3])
+
+	# # Get all 6 3x3 slices of array
+	# for row in range(3):
+	# 	for col in range(3):
+	# 		print(test_mat[row:row+3, col:col+3])
+
 	test_2 = np.array([
 		[3,5,1],
 		[2,9,7],
@@ -75,45 +90,42 @@ def testCustomModel():
 		[0.950, -0.151, -0.103]
 	])
 
+	one_through_nine  = np.array([
+		[1,2,3],
+		[4,5,6],
+		[7,8,9]
+	])
+
+	random = np.array([
+		[[1,2,3],
+		 [4,5,6],
+		 [7,8,9]],
+		[[10,11,12],
+		 [13,14,15],
+		 [16,17,18]]
+	])
+	# reshaped = random.reshape(2,9)
+	# print(reshaped, reshaped.shape)
+	# # dot = np.vdot(one_through_nine.flatten(), reshaped)
+	# # dot = np.dot(np.array([1,2,3]), np.array([4,5,6]))
+	# # new_arr = np.tile(one_through_nine.flatten(), (2,1))
+	# # print(new_arr, new_arr.shape)
+	# # dot = new_arr * reshaped
+	# # print(dot)
+	# print(one_through_nine.flatten() * reshaped)
+	print(one_through_nine)
+
+
 	# print(np.vdot(test_2, test_3))
 
-	nn = CustomNeuralNetwork("sparse_categorical_cross_entropy")
-	nn.addInputLayer((28,28,1))
-	nn.add(CustomConv2D(1, 3, "relu"))
-	# nn.add(CustomDense(4, "sigmoid"))
-	# nn.add(CustomDense(6, "softmax"))
-	# nn.summary()
-	# print("Before", X_train[0])
-	# print("Before X shape", X_train.shape)
-	# print("Before 0 shape", X_train[0].shape)
-	# print("X[0]", X_train[0])
-	# print("X[0,:,:]", X_train[0,:,:])
-	# print(np.allclose(X_train[0], X_train[0,:,:]))
+	# print(np.vdot(test_2, test_3))
 
-	print("X", X_train[0,:,:])
-	X_transpose = X_train.T
-	X_transpose = np.swapaxes(X_transpose,0,1)
-
-	print("X_transpose", X_transpose[:,:,0])
-
-
-	# There's an issue with the transpose of the 3d matrix
-	# Will have to figure this out as well as how to properly grab one sample from the transposed matrix
-	# My hunch is that the rows and columns are getting switched somehow
-	# Just needed to swap axes since rows and columns were getting interchanged. Next make sure this
-	# is done in the fit method then select one sample and start implementing the convolution operator.
-	# Implement iteratively then vectorize all calculations at once, then vectorize across samples.
-	# Then make sure it works for padding and strides
-	# Then add other types of layers like max pooling and avg pooling
-	# Then test it out.
-
-	# X_T = X_train.T
-	# print("after", X_T[:,:,0])
-	# print("After X shape", X_T.shape)
-	# print("After 0 shape", X_T[:,:,0].shape)
-
-	# print(np.allclose(X_train[0], X_T[:,:,0]))
-
+	# nn = CustomNeuralNetwork("sparse_categorical_cross_entropy")
+	# nn.addInputLayer((28,28,1))
+	# nn.add(CustomConv2D(2, 3, "relu"))
+	# # nn.add(CustomDense(4, "sigmoid"))
+	# # nn.add(CustomDense(6, "softmax"))
+	# # nn.summary()
 	# nn.fit(X_train, Y_train, 0.01, 1)
 
 def displayDataPoint(index):

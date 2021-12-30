@@ -73,6 +73,10 @@ class CustomNeuralNetwork(object):
 
 	def fit(self, X, Y, alpha, epochs):
 		self.X = X.T
+		# Swap rows and columns for images
+		if not self.input_shape == None:
+			self.X = np.swapaxes(self.X, 0, 1)
+
 		if self.loss_func == loss_functions["sparse_categorical_cross_entropy"]:
 			Y = oneHot(Y)
 		self.Y = Y.T
@@ -80,10 +84,10 @@ class CustomNeuralNetwork(object):
 		self.m = len(self.X)
 
 		self.losses = []
-		# for epoch in tqdm(range(epochs)):
-		# 	self.forwardProp()
-		# 	# self.backProp()
-		# 	# self.updateWeights()
+		for epoch in tqdm(range(epochs)):
+			self.forwardProp()
+			# self.backProp()
+			# self.updateWeights()
 		# return self.losses
 
 	def forwardProp(self, custom_X=None):
@@ -100,7 +104,7 @@ class CustomNeuralNetwork(object):
 				assert(layer.Z.shape == (layer.W.shape[0], A_prev_layer.shape[1]))
 				assert(layer.Z.shape == layer.A.shape)
 			else:
-				layer.Z = convolve(A_prev_layer,layer.W)
+				layer.Z = convolve(A_prev_layer, layer)
 
 		# predictions = self.layers[-1].A
 		# if custom_X is None:
