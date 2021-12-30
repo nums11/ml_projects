@@ -32,7 +32,11 @@ may have to reshape data. Additionally you don't need to add an input layer.
 - Understand element-wise multiplication (* & np.multiply) vs dot product, vs matrix multiplication.
 
 ToDo:
-	# Implement iteratively then vectorize all calculations at once, then vectorize across samples.
+- Add b to finish Z calculation
+- Verify that all calculations are actually corect with a 5x5 image (might need to grab
+a new dataset or just make a random 5x5 image)
+
+
 	# Then make sure it works for padding and strides
 	# Then add other types of layers like max pooling and avg pooling
 	# Then test it out.
@@ -56,6 +60,7 @@ import tensorflow as tf
 from tensorflow.keras import Sequential
 from tensorflow.python.keras.layers import Input, Dense, Conv2D, Flatten, AveragePooling2D, Activation
 from tensorflow.keras.datasets import mnist
+import time
 
 (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
 num_classes = 10
@@ -69,18 +74,6 @@ def testCustomModel():
 		[7,8,9,5,3]
 	])
 
-
-	# Get top left 3x3 slice of the 5x5 matrix
-	# print(test_mat[0:3,0:3])
-	# print(test_mat[1:4,1:4])
-	# slices = [0,1,2,3]
-	# print(test_mat[slices])
-
-
-	# # Get all 6 3x3 slices of array
-	# for row in range(3):
-	# 	for col in range(3):
-	# 		print(test_mat[row:row+3, col:col+3])
 
 	test_2 = np.array([
 		[3,5,1],
@@ -108,26 +101,13 @@ def testCustomModel():
 		 [13,14,15],
 		 [16,17,18]]
 	])
-	# reshaped = random.reshape(2,9)
-	# print(reshaped, reshaped.shape)
-	# # dot = np.vdot(one_through_nine.flatten(), reshaped)
-	# # dot = np.dot(np.array([1,2,3]), np.array([4,5,6]))
-	# # new_arr = np.tile(one_through_nine.flatten(), (2,1))
-	# # print(new_arr, new_arr.shape)
-	# # dot = new_arr * reshaped
-	# # print(dot)
-	# print(one_through_nine.flatten() * reshaped)
-	# print(one_through_nine)
-	# data = np.random.normal(size=(100,2,2,2))
-	# indexes = np.array([np.arange(0,5), np.arange(1,6), np.arange(2,7)])
-	# print(data[indexes])
-	b = [[[2]], [[3]]]
-	print(one_through_nine * random + b)
 
-
-	# print(np.vdot(test_2, test_3))
-
-	# print(np.vdot(test_2, test_3))
+	b = [
+	[[1]],
+	[[2]]
+	]
+	print(random + b)
+	print(np.array(b).shape)
 
 	# nn = CustomNeuralNetwork("sparse_categorical_cross_entropy")
 	# nn.addInputLayer((28,28,1))
