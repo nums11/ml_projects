@@ -18,6 +18,7 @@ def convolve(samples, layer):
 		for col in range(output_shape):
 			current_slice = mat[row:row+f, col:col+f]
 			# output[row,col] = np.vdot(current_slice, filter_) + bias_
+			# Convert b to a 3d array before I can add
 			calc = np.vdot(current_slice, layer.W)
 			print("calc", calc, calc.shape)
 			# outputs[:,]
@@ -41,7 +42,9 @@ def convolve(samples, layer):
 	So element-wise multiplication isn't so simple to work for the whole convolution. However, it is
 	the second half of vectorizing all steps of the convolution. If I was able to grab all slices
 	at once, then I could do a simple element-wise multiplication of the fiter across the matrix of
-	all slices to get the result of all steps of the convolution for that filter
+	all slices to get the result of all steps of the convolution for that filter.
+
+	Giving up on this for now and accepting that I'm going to have to convolve in a for loop.
 	"""
 
 	# Then logic for convolving all filters at once

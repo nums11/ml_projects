@@ -72,6 +72,10 @@ def testCustomModel():
 
 	# Get top left 3x3 slice of the 5x5 matrix
 	# print(test_mat[0:3,0:3])
+	# print(test_mat[1:4,1:4])
+	# slices = [0,1,2,3]
+	# print(test_mat[slices])
+
 
 	# # Get all 6 3x3 slices of array
 	# for row in range(3):
@@ -113,7 +117,12 @@ def testCustomModel():
 	# # dot = new_arr * reshaped
 	# # print(dot)
 	# print(one_through_nine.flatten() * reshaped)
-	print(one_through_nine)
+	# print(one_through_nine)
+	# data = np.random.normal(size=(100,2,2,2))
+	# indexes = np.array([np.arange(0,5), np.arange(1,6), np.arange(2,7)])
+	# print(data[indexes])
+	b = [[[2]], [[3]]]
+	print(one_through_nine * random + b)
 
 
 	# print(np.vdot(test_2, test_3))
