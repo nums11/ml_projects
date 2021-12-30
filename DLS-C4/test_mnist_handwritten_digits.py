@@ -32,9 +32,8 @@ may have to reshape data. Additionally you don't need to add an input layer.
 - Understand element-wise multiplication (* & np.multiply) vs dot product, vs matrix multiplication.
 
 ToDo:
-- Verify that all calculations are actually corect with a 5x5 image (might need to grab
-a new dataset or just make a random 5x5 image)
 - Vectorize across samples
+	- first go by hand to make sure I understand
 - Verify that the calculations are correct when vectorized across samples
 - Test it out
 
@@ -49,6 +48,15 @@ a new dataset or just make a random 5x5 image)
 - Create my own dataset and try it (like write my own digits)?
 - Try it on letters and Japanese characters
 - Adding batch GD?
+
+
+Thoughts: Implementing this convolution is handing me an ass whooping. And the reason for that
+is that the multi-dimensional (specifically 3-d and 4-d) outputs are more challenging to visualize.
+Whereas before, I could draw them on paper easily and thus work out the intermediate calculations by
+hand, I am struggling now because I'm not quite sure how to draw out these multi-dimensional outputs
+and state what each dimension is representing. But, if I can figure out how to do that, then I can work
+out the intermediate calculations and confidently implement my CNN.
+
 """
 
 import sys
@@ -111,13 +119,15 @@ def testCustomModel():
 	# print(random + b)
 	# print(np.array(b).shape)
 
-	# nn = CustomNeuralNetwork("sparse_categorical_cross_entropy")
-	# nn.addInputLayer((28,28,1))
-	# nn.add(CustomConv2D(2, 3, "relu"))
+	# print(np.random.randn(2, 3, 4, 5))
+
+	nn = CustomNeuralNetwork("sparse_categorical_cross_entropy")
+	nn.addInputLayer((28,28,1))
+	nn.add(CustomConv2D(2, 3, "tanh"))
 	# # # nn.add(CustomDense(4, "sigmoid"))
 	# # # nn.add(CustomDense(6, "softmax"))
 	# # # nn.summary()
-	# nn.fit(X_train, Y_train, 0.01, 1)
+	nn.fit(X_train, Y_train, 0.01, 1)
 
 def displayDataPoint(index):
 	plt.imshow(X_train[index], cmap=plt.get_cmap('gray'))
