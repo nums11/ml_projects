@@ -102,20 +102,20 @@ def testCustomModel():
 		 [16,17,18]]
 	])
 
-	b = [
-	[[1]],
-	[[2]]
-	]
-	print(random + b)
-	print(np.array(b).shape)
+	# b = [
+	# [[1]],
+	# [[2]]
+	# ]
+	# print(random + b)
+	# print(np.array(b).shape)
 
-	# nn = CustomNeuralNetwork("sparse_categorical_cross_entropy")
-	# nn.addInputLayer((28,28,1))
-	# nn.add(CustomConv2D(2, 3, "relu"))
+	nn = CustomNeuralNetwork("sparse_categorical_cross_entropy")
+	nn.addInputLayer((28,28,1))
+	nn.add(CustomConv2D(2, 3, "relu"))
 	# # nn.add(CustomDense(4, "sigmoid"))
 	# # nn.add(CustomDense(6, "softmax"))
 	# # nn.summary()
-	# nn.fit(X_train, Y_train, 0.01, 1)
+	nn.fit(X_train, Y_train, 0.01, 1)
 
 def displayDataPoint(index):
 	plt.imshow(X_train[index], cmap=plt.get_cmap('gray'))
