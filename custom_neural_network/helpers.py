@@ -6,6 +6,19 @@ def oneHot(arr):
 	return np.squeeze(np.eye(num_classes)[arr.reshape(-1)])
 
 def convolve(samples, layer):
+	# image = np.array([
+	# 	[1,2,3,4,5],
+	# 	[6,7,8,9,10],
+	# 	[11,12,13,14,15],
+	# 	[16,17,18,19,20],
+	# 	[21,22,23,24,25],
+	# ])
+	# image2 = np.array(image*2)
+	# image3 = np.array(image*3)
+	# samples = np.array([image, image2, image3])
+	# print(samples, samples.shape)
+
+
 	m = len(samples)
 	print("m",m)
 	n = samples[0].shape[0]
@@ -28,8 +41,13 @@ def convolve(samples, layer):
 
 			outputs[:,:,row,col] = inner_sum
 
+	# print("outputs\n", outputs, outputs.shape)
+	# print("B\n", layer.B, layer.B.shape)
+
 	Z = outputs + layer.B
+	# print("Z\n", Z, Z.shape)
 	assert(Z.shape == (m, layer.num_filters, output_shape, output_shape))
 
 	print("Done with conv")
 	return Z
+	# return 0

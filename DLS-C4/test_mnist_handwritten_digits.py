@@ -32,6 +32,9 @@ may have to reshape data. Additionally you don't need to add an input layer.
 - Understand element-wise multiplication (* & np.multiply) vs dot product, vs matrix multiplication.
 
 ToDo:
+- Check that my b is right now
+- I think it works but it's still very slow for one layer. Go back now and see
+if i can vectorize all slices at once.
 - Go back and fix the neural net to handle samples in rows
 	- currently handling samples in columns will probably break things
 		and it's also just not standard so it might be easier for the future
