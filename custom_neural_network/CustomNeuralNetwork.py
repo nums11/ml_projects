@@ -72,10 +72,9 @@ class CustomNeuralNetwork(object):
 			print(tabulate(table, headers=['Layer Type', 'Output Shape', '# Params', 'Activation'], tablefmt='pretty'))
 
 	def fit(self, X, Y, alpha, epochs):
-		self.X = X.T
-		# Swap rows and columns for images
-		if not self.input_shape == None:
-			self.X = np.swapaxes(self.X, 0, 1)
+		self.X = X
+		if not self.num_input_features == None:
+			self.X = X.T
 
 		if self.loss_func == loss_functions["sparse_categorical_cross_entropy"]:
 			Y = oneHot(Y)

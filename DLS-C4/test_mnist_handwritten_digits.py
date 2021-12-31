@@ -32,11 +32,10 @@ may have to reshape data. Additionally you don't need to add an input layer.
 - Understand element-wise multiplication (* & np.multiply) vs dot product, vs matrix multiplication.
 
 ToDo:
-- Vectorize across samples
-	- first go by hand to make sure I understand
-- Verify that the calculations are correct when vectorized across samples
-- Test it out
-
+- Go back and fix the neural net to handle samples in rows
+	- currently handling samples in columns will probably break things
+		and it's also just not standard so it might be easier for the future
+	- may have to go back and figure out the backprop calculations for this.
 
 	# Then make sure it works for padding and strides
 	# Then add other types of layers like max pooling and avg pooling

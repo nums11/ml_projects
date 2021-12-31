@@ -25,5 +25,5 @@ class Conv2D(object):
 		self.filter_size = filter_size
 		np.random.seed(0)
 		self.W = np.random.randn(num_filters, filter_size, filter_size)
-		self.B = np.random.randn(num_filters, 1, 1) * 0.01
+		self.B = np.random.randn(num_filters, 1, 1, 1) * 0.01
 		self.activation_func = activations[activation_func]
