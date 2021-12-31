@@ -32,7 +32,6 @@ may have to reshape data. Additionally you don't need to add an input layer.
 - Understand element-wise multiplication (* & np.multiply) vs dot product, vs matrix multiplication.
 
 ToDo:
-- Check that my b is right now
 - I think it works but it's still very slow for one layer. Go back now and see
 if i can vectorize all slices at once.
 - Go back and fix the neural net to handle samples in rows
@@ -78,58 +77,68 @@ import time
 num_classes = 10
 
 def testCustomModel():
-	test_mat = np.array([
-		[3,5,1,4,6],
-		[2,9,7,8,1],
-		[0,4,1,3,1],
-		[5,6,0,4,2],
-		[7,8,9,5,3]
+	# test_mat = np.array([
+	# 	[3,5,1,4,6],
+	# 	[2,9,7,8,1],
+	# 	[0,4,1,3,1],
+	# 	[5,6,0,4,2],
+	# 	[7,8,9,5,3]
+	# ])
+
+	mat_1 = np.array([
+		[[1,2],
+		 [3,4]],
+		[[5,6],
+		 [7,8]]
 	])
 
-
-	test_2 = np.array([
-		[3,5,1],
-		[2,9,7],
-		[0,4,1],
+	mat_2 = np.array([
+		[[9,10],
+		 [11,12]],
+		[[13,14],
+		 [15,16]],
 	])
 
-	test_3 = np.array([
-		[1.764, 0.4, 0.978],
-		[2.240, 1.867, -0.977],
-		[0.950, -0.151, -0.103]
-	])
+	result = mat_1[:,:,np.newaxis] * mat_2[np.newaxis,:,:]
+	print(result, result.shape)
 
-	one_through_nine  = np.array([
-		[1,2,3],
-		[4,5,6],
-		[7,8,9]
-	])
+	# mat_2 = np.array([
+	# 	[
+	# 		[[10,11],
+	# 		 [12,13]],
+	# 		[[14,15],
+	# 		 [16,17]]
+	# 	]
+	# ])
 
-	random = np.array([
-		[[1,2,3],
-		 [4,5,6],
-		 [7,8,9]],
-		[[10,11,12],
-		 [13,14,15],
-		 [16,17,18]]
-	])
+	# print("mat_1\n", mat_1, mat_1.shape)
+	# print("mat_2\n", mat_2, mat_2.shape)
+	# mult = mat_1 * mat_2
+	# print("mult\n", mult, mult.shape)
+	# print(np.matmul(mat_1, mat_2).shape)
 
-	# b = [
-	# [[1]],
-	# [[2]]
-	# ]
-	# print(random + b)
-	# print(np.array(b).shape)
+	# How to grab all the slices from the array at once.
+	# How to grab 2 at once?
+	# I can easily store all of the traversals in a list
+	# Would it be faster to simply grab the image slices in the double for loop
+	# and do all the other work outside of the for loop? I think so.
+	# It's currently doing the convolution step at every slice as opposed to
+	# Gather all the slices and doing the convolution step at once.
+	# First just removing the list comprehension from the inner for loop
+	# then trying to vectorize the 2d list comprehension into a 1-d list comprehension
 
-	# print(np.random.randn(2, 3, 4, 5))
+	# Figure out how to vectorized multiply 1 slice across all the samples by the weight matrix
+	# I have a hunch that if I reshape W properly, I can do a matrix mulitplication to get the
+	# output that I'm looking for
 
-	nn = CustomNeuralNetwork("sparse_categorical_cross_entropy")
-	nn.addInputLayer((28,28,1))
-	nn.add(CustomConv2D(2, 3, "tanh"))
-	# # # nn.add(CustomDense(4, "sigmoid"))
-	# # # nn.add(CustomDense(6, "softmax"))
-	# # # nn.summary()
-	nn.fit(X_train, Y_train, 0.01, 1)
+
+	# nn = CustomNeuralNetwork("sparse_categorical_cross_entropy")
+	# nn.addInputLayer((28,28,1))
+	# nn.add(CustomConv2D(2, 3, "tanh"))
+	# # # # nn.add(CustomDense(4, "sigmoid"))
+	# # # # nn.add(CustomDense(6, "softmax"))
+	# # # # nn.summary()
+	# nn.fit(X_train, Y_train, 0.01, 1)
 
 def displayDataPoint(index):
 	plt.imshow(X_train[index], cmap=plt.get_cmap('gray'))
