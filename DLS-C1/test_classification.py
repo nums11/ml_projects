@@ -36,28 +36,29 @@ from tqdm import tqdm
 
 # Get sparse to work
 def testCustomModel():
-	# planar = load_planar_dataset()
-	noisy_circles, noisy_moons, blobs, gaussian_quantiles, no_structure = load_extra_datasets()
-	X, Y = blobs
+	planar = load_planar_dataset()
+	# noisy_circles, noisy_moons, blobs, gaussian_quantiles, no_structure = load_extra_datasets()
+	X, Y = planar
 	# print(Y)
-	Y_one_hot = np.squeeze(np.eye(6)[Y.reshape(-1)])
-	print(Y_one_hot)
+	# Y_one_hot = np.squeeze(np.eye(6)[Y.reshape(-1)])
+	# print(Y_one_hot)
 
-	# nn = CustomNeuralNetwork("binary_cross_entropy")
-	# nn.addInputLayer(2)
-	# nn.addLayer(4, "sigmoid")
-	# nn.addLayer(1, "sigmoid")
-
-	nn = CustomNeuralNetwork("categorical_cross_entropy")
+	nn = CustomNeuralNetworkV2("binary_cross_entropy")
 	nn.addInputLayer((2,))
 	nn.add(CustomDense(4, "sigmoid"))
-	nn.add(CustomDense(6, "softmax"))
-	nn.summary()
+	nn.add(CustomDense(1, "sigmoid"))
+	# nn.summary()
 
-	loss = nn.fit(X, Y_one_hot, 0.01, 1000)
+	# nn = CustomNeuralNetworkV2("categorical_cross_entropy")
+	# nn.addInputLayer((2,))
+	# nn.add(CustomDense(4, "sigmoid"))
+	# nn.add(CustomDense(6, "softmax"))
+	# nn.summary()
+
+	loss = nn.fit(X, Y, 0.01, 1000)
 	plt.plot(loss)
 	plt.show()
-	print("Accuracy", nn.evaluate(X, Y_one_hot, 'categorical_accuracy'))
+	print("Accuracy", nn.evaluate(X, Y, 'binary_accuracy'))
 
 	# nn = CustomNeuralNetwork("categorical_cross_entropy")
 	# nn.addInputLayer(2)

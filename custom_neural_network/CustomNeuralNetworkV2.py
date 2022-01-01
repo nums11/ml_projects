@@ -72,7 +72,7 @@ class CustomNeuralNetworkV2(object):
 			print(tabulate(table, headers=['Layer Type', 'Output Shape', '# Params', 'Activation'], tablefmt='pretty'))
 
 	def fit(self, X, Y, alpha, epochs):
-		self.X = X
+		self.X = X.T
 		if not self.num_input_features == None:
 			self.X = X.T
 
@@ -85,9 +85,9 @@ class CustomNeuralNetworkV2(object):
 		self.losses = []
 		for epoch in tqdm(range(epochs)):
 			self.forwardProp()
-			# self.backProp()
-			# self.updateWeights()
-		# return self.losses
+			self.backProp()
+			self.updateWeights()
+		return self.losses
 
 	def forwardProp(self, custom_X=None):
 		X = self.X if custom_X is None else custom_X
@@ -115,10 +115,10 @@ class CustomNeuralNetworkV2(object):
 				# print("A")
 				# print(layer.A)
 
-		# predictions = self.layers[-1].A
-		# if custom_X is None:
-		# 	self.losses.append(self.loss_func(predictions, self.Y))
-		# return predictions
+		predictions = self.layers[-1].A
+		if custom_X is None:
+			self.losses.append(self.loss_func(predictions, self.Y))
+		return predictions
 
 	def backProp(self):
 		# skip over the flatten layers
