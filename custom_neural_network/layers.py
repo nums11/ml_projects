@@ -27,3 +27,7 @@ class Conv2D(object):
 		self.W = np.random.randn(num_filters, filter_size, filter_size)
 		self.B = np.random.randn(1, num_filters, 1, 1) * 0.01
 		self.activation_func = activations[activation_func]
+
+class Flatten(object):
+	def __init__(self):
+		pass

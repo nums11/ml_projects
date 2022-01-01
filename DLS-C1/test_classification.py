@@ -21,6 +21,7 @@ just use the custom model I built myself.
 import sys
 sys.path.append('../')
 from ml_projects.custom_neural_network.CustomNeuralNetwork import CustomNeuralNetwork
+from ml_projects.custom_neural_network.CustomNeuralNetworkV2 import CustomNeuralNetworkV2
 from ml_projects.custom_neural_network.layers import Dense as CustomDense
 from planar_data_utils import *
 import matplotlib.pyplot as plt

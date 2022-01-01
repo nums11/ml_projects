@@ -15,7 +15,7 @@ iterations. I'm also surprised how slow it trains. Maybe it's because there's so
 Learnings:
 - The main difference between CNNs and FFNNs is that the calculation for Z is not W * X + b but
 rather the convolution of W on X then adding b. And instead of having multiple units and a bias
-term for each unit, you have multiplef filters and a bias term for each filter.
+term for each unit, you have multiple filters and a bias term for each filter.
 - Max pooling preserves the most important features and has no learnable parameters. Some people
 only count layers as layers with weights so they don't count the pooling layer as an actual layer.
 - There are 2 main advantages to CNNs
@@ -30,34 +30,23 @@ only count layers as layers with weights so they don't count the pooling layer a
 may have to reshape data. Additionally you don't need to add an input layer.
 - Normalizing values can give slightly better accuracy
 - Understand element-wise multiplication (* & np.multiply) vs dot product, vs matrix multiplication.
+- You don't backpropogate flatten layers, just reshape.
+- multi-dimensional data is best understood by drawing it as matrices inside matrices not as a volume.
+It also helps to label what each dimension is representing.
 
 ToDo:
-- I think it works but it's still very slow for one layer. Go back now and see
-if i can vectorize all slices at once.
-- Go back and fix the neural net to handle samples in rows
-	- currently handling samples in columns will probably break things
-		and it's also just not standard so it might be easier for the future
-	- may have to go back and figure out the backprop calculations for this.
-
-	# Then make sure it works for padding and strides
-	# Then add other types of layers like max pooling and avg pooling
-	# Then test it out.
-
-- Implement my own conv and pooling layers
+- Go back and change the NN architecture to handle data where the sample represents eachrow
+- Verify that my implementation trains correctly
+- Implement padded convolutions
+- Implement strided convolutions
+- Implement max pooling layers
+- Implement average pooling layers
 - Try on other image datasets not just MNIST?
 	- Fashion MNIST?
 - Create my own dataset and try it (like write my own digits)?
 - Try it on letters and Japanese characters
-- Adding batch GD?
-
-
-Thoughts: Implementing this convolution is handing me an ass whooping. And the reason for that
-is that the multi-dimensional (specifically 3-d and 4-d) outputs are more challenging to visualize.
-Whereas before, I could draw them on paper easily and thus work out the intermediate calculations by
-hand, I am struggling now because I'm not quite sure how to draw out these multi-dimensional outputs
-and state what each dimension is representing. But, if I can figure out how to do that, then I can work
-out the intermediate calculations and confidently implement my CNN.
-
+- Adding mini-batch GD?
+- Adding ADAM and the other optimizers
 """
 
 import sys
@@ -65,6 +54,7 @@ sys.path.append('../')
 from ml_projects.custom_neural_network.CustomNeuralNetwork import CustomNeuralNetwork
 from ml_projects.custom_neural_network.layers import Dense as CustomDense
 from ml_projects.custom_neural_network.layers import Conv2D as CustomConv2D
+from ml_projects.custom_neural_network.layers import Flatten as CustomFlatten
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
@@ -73,10 +63,9 @@ from tensorflow.python.keras.layers import Input, Dense, Conv2D, Flatten, Averag
 from tensorflow.keras.datasets import mnist
 import time
 
-(X_train, Y_train), (X_test, Y_test) = mnist.load_data()
-num_classes = 10
-
 def testCustomModel():
+	(X_train, Y_train), (X_test, Y_test) = mnist.load_data()
+	num_classes = 10
 	# test_mat = np.array([
 	# 	[3,5,1,4,6],
 	# 	[2,9,7,8,1],
@@ -84,23 +73,6 @@ def testCustomModel():
 	# 	[5,6,0,4,2],
 	# 	[7,8,9,5,3]
 	# ])
-
-	mat_1 = np.array([
-		[[1,2],
-		 [3,4]],
-		[[5,6],
-		 [7,8]]
-	])
-
-	mat_2 = np.array([
-		[[9,10],
-		 [11,12]],
-		[[13,14],
-		 [15,16]],
-	])
-
-	result = mat_1[:,:,np.newaxis] * mat_2[np.newaxis,:,:]
-	print(result, result.shape)
 
 	# mat_2 = np.array([
 	# 	[
@@ -132,19 +104,23 @@ def testCustomModel():
 	# output that I'm looking for
 
 
-	# nn = CustomNeuralNetwork("sparse_categorical_cross_entropy")
-	# nn.addInputLayer((28,28,1))
-	# nn.add(CustomConv2D(2, 3, "tanh"))
-	# # # # nn.add(CustomDense(4, "sigmoid"))
-	# # # # nn.add(CustomDense(6, "softmax"))
-	# # # # nn.summary()
-	# nn.fit(X_train, Y_train, 0.01, 1)
+	nn = CustomNeuralNetwork("sparse_categorical_cross_entropy")
+	nn.addInputLayer((28,28,1))
+	nn.add(CustomConv2D(1, 3, "tanh"))
+	nn.add(CustomFlatten())
+	# # # nn.add(CustomDense(4, "sigmoid"))
+	# # # nn.add(CustomDense(6, "softmax"))
+	# # # nn.summary()
+	nn.fit(X_train, Y_train, 0.01, 1)
 
 def displayDataPoint(index):
 	plt.imshow(X_train[index], cmap=plt.get_cmap('gray'))
 	plt.show()
 
 def testTF():
+	(X_train, Y_train), (X_test, Y_test) = mnist.load_data()
+	num_classes = 10
+
 	X_train = X_train.reshape(-1, 28, 28, 1)
 	X_train = tf.cast(X_train, tf.float64)
 	X_test = X_test.reshape(-1, 28, 28, 1)
@@ -159,8 +135,8 @@ def testTF():
 		loss=tf.keras.losses.SparseCategoricalCrossentropy(),
 		metrics=[tf.keras.metrics.SparseCategoricalAccuracy()]
 	)
-	# model.summary()
 	history = model.fit(X_train, Y_train, epochs=5, validation_data=(X_test, Y_test))
+	# model.summary()
 	fig, axs = plt.subplots(2, 1, figsize=(15,15))
 	axs[0].plot(history.history['loss'])
 	axs[0].plot(history.history['val_loss'])

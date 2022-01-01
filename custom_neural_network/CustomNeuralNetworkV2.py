@@ -22,7 +22,7 @@ def sigmoid(x):
   s = 1/(1+np.exp(-x))
   return s
 
-class CustomNeuralNetwork(object):
+class CustomNeuralNetworkV2(object):
 	def __init__(self, loss_func):
 		self.layers = []
 		self.num_input_features = None
