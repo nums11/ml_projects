@@ -43,22 +43,50 @@ def testCustomModel():
 	# Y_one_hot = np.squeeze(np.eye(6)[Y.reshape(-1)])
 	# print(Y_one_hot)
 
+	x = np.array([
+		[1,2],
+		[3,4],
+		[5,6],
+		[7,8],
+		[9,10]
+	])
+
+	W = np.array([
+		[1,2],
+		[3,4],
+		[5,6],
+		[7,8]
+	])
+
+	b = np.array([
+	[10],
+	[20],
+	[30],
+	[40]
+	])
+
+	# z = np.dot(x, W.T) + b.T
+	# print(z, z.shape)
+
 	nn = CustomNeuralNetworkV2("binary_cross_entropy")
 	nn.addInputLayer((2,))
 	nn.add(CustomDense(4, "sigmoid"))
 	nn.add(CustomDense(1, "sigmoid"))
 	# nn.summary()
 
-	# nn = CustomNeuralNetworkV2("categorical_cross_entropy")
-	# nn.addInputLayer((2,))
-	# nn.add(CustomDense(4, "sigmoid"))
-	# nn.add(CustomDense(6, "softmax"))
-	# nn.summary()
+	# # nn = CustomNeuralNetworkV2("categorical_cross_entropy")
+	# # nn.addInputLayer((2,))
+	# # nn.add(CustomDense(4, "sigmoid"))
+	# # nn.add(CustomDense(6, "softmax"))
+	# # nn.summary()
+
+	# X = np.array([X[0]])
+	# Y = np.array([Y[0]])
 
 	loss = nn.fit(X, Y, 0.01, 1000)
 	plt.plot(loss)
 	plt.show()
-	print("Accuracy", nn.evaluate(X, Y, 'binary_accuracy'))
+	# print("Accuracy", nn.evaluate(X, Y, 'binary_accuracy'))
 
 	# nn = CustomNeuralNetwork("categorical_cross_entropy")
 	# nn.addInputLayer(2)

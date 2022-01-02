@@ -3,10 +3,11 @@ from ml_projects.custom_neural_network.activations import activations, activatio
 
 class Dense(object):
 	def __init__(self, num_units, activation_func):
+		np.random.seed(0)
 		self.num_units = num_units
 		self.B = np.random.randn(self.num_units, 1) * 0.01
-		self.Z = np.zeros((self.num_units, 1))
-		self.A = np.zeros((self.num_units, 1))
+		# self.Z = np.zeros((None, self.num_units))
+		# self.A = np.zeros((None, self.num_units))
 		self.activation_func = activations[activation_func]
 		if not activation_func == "softmax":
 			self.activation_derivative = activation_derivatives[activation_func]
