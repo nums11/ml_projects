@@ -33,6 +33,8 @@ may have to reshape data. Additionally you don't need to add an input layer.
 - You don't backpropogate flatten layers, just reshape.
 - multi-dimensional data is best understood by drawing it as matrices inside matrices not as a volume.
 It also helps to label what each dimension is representing.
+- First look at the curve and if it is still learning but slowly then modify the learning rate
+before diving into anything else.
 
 ToDo:
 - Go back and change the NN architecture to handle data where the sample represents eachrow

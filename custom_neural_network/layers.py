@@ -3,11 +3,8 @@ from ml_projects.custom_neural_network.activations import activations, activatio
 
 class Dense(object):
 	def __init__(self, num_units, activation_func):
-		np.random.seed(0)
 		self.num_units = num_units
 		self.B = np.random.randn(self.num_units, 1) * 0.01
-		# self.Z = np.zeros((None, self.num_units))
-		# self.A = np.zeros((None, self.num_units))
 		self.activation_func = activations[activation_func]
 		if not activation_func == "softmax":
 			self.activation_derivative = activation_derivatives[activation_func]
@@ -24,7 +21,7 @@ class Conv2D(object):
 	def __init__(self, num_filters, filter_size, activation_func):
 		self.num_filters = num_filters
 		self.filter_size = filter_size
-		np.random.seed(0)
+		# np.random.seed(0)
 		self.W = np.random.randn(num_filters, filter_size, filter_size)
 		self.B = np.random.randn(1, num_filters, 1, 1) * 0.01
 		self.activation_func = activations[activation_func]

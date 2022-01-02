@@ -81,13 +81,14 @@ class CustomNeuralNetwork(object):
 		self.Y = Y.T
 		self.alpha = alpha
 		self.m = len(self.X)
+		print("m-------------------------------------------", self.m)
 
 		self.losses = []
 		for epoch in tqdm(range(epochs)):
 			self.forwardProp()
-			# self.backProp()
-			# self.updateWeights()
-		# return self.losses
+			self.backProp()
+			self.updateWeights()
+		return self.losses
 
 	def forwardProp(self, custom_X=None):
 		X = self.X if custom_X is None else custom_X
@@ -99,7 +100,9 @@ class CustomNeuralNetwork(object):
 
 			if isinstance(layer, Dense):
 				layer.Z = np.dot(layer.W, A_prev_layer) + layer.B
+				print("Z", layer.Z)
 				layer.A =  layer.activation_func(layer.Z)
+				print("A", layer.A)
 				assert(layer.Z.shape == (layer.W.shape[0], A_prev_layer.shape[1]))
 				assert(layer.Z.shape == layer.A.shape)
 			elif isinstance(layer, Flatten):
@@ -115,34 +118,42 @@ class CustomNeuralNetwork(object):
 				# print("A")
 				# print(layer.A)
 
-		# predictions = self.layers[-1].A
-		# if custom_X is None:
-		# 	self.losses.append(self.loss_func(predictions, self.Y))
-		# return predictions
+		predictions = self.layers[-1].A
+		if custom_X is None:
+			self.losses.append(self.loss_func(predictions, self.Y))
+		return predictions
 
 	def backProp(self):
 		# skip over the flatten layers
 		for i, layer in reversed(list(enumerate(self.layers))):
 			if i == len(self.layers) - 1:
 				layer.dZ = layer.A - self.Y
+				print("DZ output", layer.dZ)
 			else:
 				layer.dZ = \
 					np.dot(self.layers[i+1].W.T, self.layers[i+1].dZ) * layer.activation_derivative(layer.A)
+				print("DZ hidden", layer.dZ)
 
 			if i == 0:
 				layer.dW = (1/self.m) * np.dot(layer.dZ, self.X.T)
+				print("DW hidden", layer.dW)
 			else:
 				layer.dW = (1/self.m) * np.dot(layer.dZ, self.layers[i-1].A.T)
+				print("DW output", layer.dW)
+			print("m", self.m)
 
 			layer.dB = (1/self.m) * np.sum(layer.dZ, axis=1, keepdims=True)
+			print("DB", layer.dB)
 			assert(layer.dZ.shape == layer.Z.shape)
-			assert(layer.dW.shape == layer.dW.shape)
-			assert(layer.dB.shape == layer.dB.shape)
+			assert(layer.dW.shape == layer.W.shape)
+			assert(layer.dB.shape == layer.B.shape)
 
 	def updateWeights(self):
 		for layer in self.layers:
 			layer.W = layer.W - self.alpha * layer.dW
+			print("updating W", layer.W)
 			layer.B = layer.B - self.alpha * layer.dB
+			print("updating B", layer.B)
 
 	def predict(self, X):
 		return self.forwardProp(custom_X=X.T)

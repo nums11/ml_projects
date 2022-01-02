@@ -33,46 +33,39 @@ from torch import nn
 import torch.optim as optim
 from torch.utils.data import TensorDataset, DataLoader
 from tqdm import tqdm
+import copy
 
 # Get sparse to work
 def testCustomModel():
 	planar = load_planar_dataset()
-	# noisy_circles, noisy_moons, blobs, gaussian_quantiles, no_structure = load_extra_datasets()
-	X, Y = planar
+	noisy_circles, noisy_moons, blobs, gaussian_quantiles, no_structure = load_extra_datasets()
+	X, Y = noisy_circles
 	# print(Y)
 	# Y_one_hot = np.squeeze(np.eye(6)[Y.reshape(-1)])
 	# print(Y_one_hot)
-
-	x = np.array([
-		[1,2],
-		[3,4],
-		[5,6],
-		[7,8],
-		[9,10]
-	])
-
-	W = np.array([
-		[1,2],
-		[3,4],
-		[5,6],
-		[7,8]
-	])
-
-	b = np.array([
-	[10],
-	[20],
-	[30],
-	[40]
-	])
-
-	# z = np.dot(x, W.T) + b.T
-	# print(z, z.shape)
 
 	nn = CustomNeuralNetworkV2("binary_cross_entropy")
 	nn.addInputLayer((2,))
 	nn.add(CustomDense(4, "sigmoid"))
 	nn.add(CustomDense(1, "sigmoid"))
+
+	nn_old = CustomNeuralNetwork("binary_cross_entropy")
+	nn_old.addInputLayer((2,))
+	nn_old.add(CustomDense(4, "sigmoid"))
+	nn_old.add(CustomDense(1, "sigmoid"))
 	# nn.summary()
+
+	# for layer in nn.layers:
+	# 	print("weights", layer.W)
+	# 	print("biases", layer.B)
+
+	nn_old.layers = copy.deepcopy(nn.layers)
+	# print(nn_old.layers[0].W)
+	# print(nn.layers[0].W)
+
+	# for layer in nn_old.layers:
+	# 	print("weights", layer.W)
+	# 	print("biases", layer.B)
 
 	# # nn = CustomNeuralNetworkV2("categorical_cross_entropy")
 	# # nn.addInputLayer((2,))
@@ -80,13 +73,23 @@ def testCustomModel():
 	# # nn.add(CustomDense(6, "softmax"))
 	# # nn.summary()
 
-	# X = np.array([X[0]])
-	# Y = np.array([Y[0]])
+	# X = np.array([X[0], X[1], X[2]])
+	# Y = np.array([Y[0], Y[1], Y[2]])
 
+	# print("Old Net --------------------------------------")
+	# loss_old = nn_old.fit(X, Y, 0.01, 1)
+	# # plt.plot(loss_old)
+	# # plt.show()
+	# # print("Accuracy", nn_old.evaluate(X, Y, 'binary_accuracy'))
+
+	# print(X.shape)
+	Y = Y.reshape(-1,1)
+
+	print("New net --------------------------------------")
 	loss = nn.fit(X, Y, 0.01, 1000)
 	plt.plot(loss)
 	plt.show()
-	# print("Accuracy", nn.evaluate(X, Y, 'binary_accuracy'))
+	print("Accuracy", nn.evaluate(X, Y, 'binary_accuracy'))
 
 	# nn = CustomNeuralNetwork("categorical_cross_entropy")
 	# nn.addInputLayer(2)
@@ -96,17 +99,12 @@ def testCustomModel():
 	# nn.addLayer(2, "softmax")
 	# nn.summary()
 
-	# loss = nn.fit(X, Y, 0.01, 1000)
-	# plt.plot(loss)
-	# plt.show()
-	# print("Accuracy", nn.evaluate(X, Y, 'sparse_categorical_accuracy'))
-	# plot_decision_boundary(lambda x: nn.predict(x), X, Y)
-
 def testTFModel():
-	# planar = load_planar_dataset()
+	planar = load_planar_dataset()
 	noisy_circles, noisy_moons, blobs, gaussian_quantiles, no_structure = load_extra_datasets()
-	X, Y = blobs
-	Y_one_hot = tf.one_hot(Y, 6)
+	X, Y = noisy_circles
+	Y = Y.reshape(-1,1)
+	# Y_one_hot = tf.one_hot(Y, 6)
 
 	# model = Sequential()
 	# model.add(Input(shape=(2,)))
@@ -121,20 +119,22 @@ def testTFModel():
 	# plt.plot(training_history.history["loss"])
 	# print(model.evaluate(X, Y, return_dict=True)['binary_accuracy'])
 
+	# Everything appears to be equal but one of them isn't training.
+
 	model = Sequential()
 	model.add(Input(shape=(2,)))
-	model.add(Dense(4, activation='relu'))
-	model.add(Dense(6, activation='softmax'))
+	model.add(Dense(4, activation='sigmoid'))
+	model.add(Dense(1, activation='sigmoid'))
 	model.compile(
 		optimizer=tf.keras.optimizers.Adam(learning_rate=0.01),
-		loss=tf.keras.losses.SparseCategoricalCrossentropy(),
-		metrics=[tf.keras.metrics.SparseCategoricalAccuracy()]
+		loss=tf.keras.losses.BinaryCrossentropy(),
+		metrics=[tf.keras.metrics.BinaryAccuracy()]
 	)
-	model.summary()
-	# training_history = model.fit(X, Y, epochs=1000)
-	# plt.plot(training_history.history["loss"])
-	# plt.show()
-	# print(model.evaluate(X, Y, return_dict=True)['sparse_categorical_accuracy'])
+	# model.summary()
+	training_history = model.fit(X, Y, epochs=1000)
+	plt.plot(training_history.history["loss"])
+	plt.show()
+	print(model.evaluate(X, Y, return_dict=True)['binary_accuracy'])
 	# plot_decision_boundary(lambda x: model.predict(x), X.T, Y.T)
 
 def testPytorchModel():
