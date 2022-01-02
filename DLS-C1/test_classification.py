@@ -39,39 +39,31 @@ import copy
 def testCustomModel():
 	planar = load_planar_dataset()
 	noisy_circles, noisy_moons, blobs, gaussian_quantiles, no_structure = load_extra_datasets()
-	X, Y = noisy_circles
+	X, Y = blobs
 	# print(Y)
 	# Y_one_hot = np.squeeze(np.eye(6)[Y.reshape(-1)])
 	# print(Y_one_hot)
 
-	nn = CustomNeuralNetworkV2("binary_cross_entropy")
+	nn = CustomNeuralNetworkV2("categorical_cross_entropy")
 	nn.addInputLayer((2,))
 	nn.add(CustomDense(4, "sigmoid"))
-	nn.add(CustomDense(1, "sigmoid"))
+	nn.add(CustomDense(6, "softmax"))
 
-	nn_old = CustomNeuralNetwork("binary_cross_entropy")
-	nn_old.addInputLayer((2,))
-	nn_old.add(CustomDense(4, "sigmoid"))
-	nn_old.add(CustomDense(1, "sigmoid"))
-	# nn.summary()
+	# nn_old = CustomNeuralNetwork("binary_cross_entropy")
+	# nn_old.addInputLayer((2,))
+	# nn_old.add(CustomDense(4, "sigmoid"))
+	# nn_old.add(CustomDense(1, "sigmoid"))
+	# # nn.summary()
 
-	# for layer in nn.layers:
-	# 	print("weights", layer.W)
-	# 	print("biases", layer.B)
 
-	nn_old.layers = copy.deepcopy(nn.layers)
+
+	# nn_old.layers = copy.deepcopy(nn.layers)
 	# print(nn_old.layers[0].W)
 	# print(nn.layers[0].W)
 
 	# for layer in nn_old.layers:
 	# 	print("weights", layer.W)
 	# 	print("biases", layer.B)
-
-	# # nn = CustomNeuralNetworkV2("categorical_cross_entropy")
-	# # nn.addInputLayer((2,))
-	# # nn.add(CustomDense(4, "sigmoid"))
-	# # nn.add(CustomDense(6, "softmax"))
-	# # nn.summary()
 
 	# X = np.array([X[0], X[1], X[2]])
 	# Y = np.array([Y[0], Y[1], Y[2]])
@@ -83,28 +75,22 @@ def testCustomModel():
 	# # print("Accuracy", nn_old.evaluate(X, Y, 'binary_accuracy'))
 
 	# print(X.shape)
-	Y = Y.reshape(-1,1)
+	Y = np.squeeze(np.eye(6)[Y.reshape(-1)])
+	# print(Y, Y.shape)
+	# Y = Y.reshape(-1,1)
 
 	print("New net --------------------------------------")
-	loss = nn.fit(X, Y, 0.01, 1000)
+	loss = nn.fit(X, Y, 0.01, 10000)
 	plt.plot(loss)
 	plt.show()
-	print("Accuracy", nn.evaluate(X, Y, 'binary_accuracy'))
-
-	# nn = CustomNeuralNetwork("categorical_cross_entropy")
-	# nn.addInputLayer(2)
-	# nn.addLayer(10, "sigmoid")
-	# nn.addLayer(10, "sigmoid")
-	# nn.addLayer(10, "sigmoid")
-	# nn.addLayer(2, "softmax")
-	# nn.summary()
+	print("Accuracy", nn.evaluate(X, Y, 'categorical_accuracy'))
 
 def testTFModel():
 	planar = load_planar_dataset()
 	noisy_circles, noisy_moons, blobs, gaussian_quantiles, no_structure = load_extra_datasets()
-	X, Y = noisy_circles
-	Y = Y.reshape(-1,1)
-	# Y_one_hot = tf.one_hot(Y, 6)
+	X, Y = blobs
+	# Y = Y.reshape(-1,1)
+	Y = tf.one_hot(Y, 6)
 
 	# model = Sequential()
 	# model.add(Input(shape=(2,)))
@@ -124,17 +110,17 @@ def testTFModel():
 	model = Sequential()
 	model.add(Input(shape=(2,)))
 	model.add(Dense(4, activation='sigmoid'))
-	model.add(Dense(1, activation='sigmoid'))
+	model.add(Dense(6, activation='softmax'))
 	model.compile(
 		optimizer=tf.keras.optimizers.Adam(learning_rate=0.01),
-		loss=tf.keras.losses.BinaryCrossentropy(),
-		metrics=[tf.keras.metrics.BinaryAccuracy()]
+		loss=tf.keras.losses.CategoricalCrossentropy(),
+		metrics=[tf.keras.metrics.CategoricalAccuracy()]
 	)
 	# model.summary()
 	training_history = model.fit(X, Y, epochs=1000)
 	plt.plot(training_history.history["loss"])
 	plt.show()
-	print(model.evaluate(X, Y, return_dict=True)['binary_accuracy'])
+	print(model.evaluate(X, Y, return_dict=True)['categorical_accuracy'])
 	# plot_decision_boundary(lambda x: model.predict(x), X.T, Y.T)
 
 def testPytorchModel():

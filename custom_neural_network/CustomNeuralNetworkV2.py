@@ -127,11 +127,11 @@ class CustomNeuralNetworkV2(object):
 					np.dot(self.layers[i+1].dZ, self.layers[i+1].W) * layer.activation_derivative(layer.A)
 
 			if i == 0:
-				layer.dW = (1/2) * np.dot(layer.dZ.T, self.X)
+				layer.dW = (1/self.m) * np.dot(layer.dZ.T, self.X)
 			else:
-				layer.dW = (1/2) * np.dot(layer.dZ.T, self.layers[i-1].A)
+				layer.dW = (1/self.m) * np.dot(layer.dZ.T, self.layers[i-1].A)
 
-			layer.dB = (1/2) * np.sum(layer.dZ.T, axis=1, keepdims=True)
+			layer.dB = (1/self.m) * np.sum(layer.dZ.T, axis=1, keepdims=True)
 			assert(layer.dZ.shape == layer.Z.shape)
 			assert(layer.dW.shape == layer.W.shape)
 			assert(layer.dB.shape == layer.B.shape)
@@ -147,6 +147,7 @@ class CustomNeuralNetworkV2(object):
 
 	def evaluate(self, X, Y, metric):
 		predictions = self.predict(X)
+		print("predictions", predictions)
 		return metrics[metric](predictions, Y)
 
 	def printWeightsDebug(self):

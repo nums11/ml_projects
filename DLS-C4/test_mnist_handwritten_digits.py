@@ -35,6 +35,10 @@ may have to reshape data. Additionally you don't need to add an input layer.
 It also helps to label what each dimension is representing.
 - First look at the curve and if it is still learning but slowly then modify the learning rate
 before diving into anything else.
+- Sometimes it will appear like the NN is barely learning for thousands of iterations then it will
+suddenly start learning out of nowhere. This is where increasing the number of iterations comes in
+handy if you've increased the learning rate and it appears to be learning but still very slowly.
+In this regard, optimizers can make a huge difference in the # of iterations necessary.
 
 ToDo:
 - Go back and change the NN architecture to handle data where the sample represents eachrow
