@@ -147,7 +147,6 @@ class CustomNeuralNetworkV2(object):
 
 	def evaluate(self, X, Y, metric):
 		predictions = self.predict(X)
-		print("predictions", predictions)
 		return metrics[metric](predictions, Y)
 
 	def printWeightsDebug(self):
