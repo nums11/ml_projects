@@ -80,7 +80,7 @@ def testCustomModel():
 	# Y = Y.reshape(-1,1)
 
 	print("New net --------------------------------------")
-	loss = nn.fit(X, Y, 0.01, 10000)
+	loss = nn.fit(X, Y, 0.1, 10000)
 	plt.plot(loss)
 	plt.show()
 	print("Accuracy", nn.evaluate(X, Y, 'categorical_accuracy'))

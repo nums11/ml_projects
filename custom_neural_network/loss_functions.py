@@ -3,12 +3,12 @@ import numpy as np
 def binaryCrossEntroypy(predictions, Y):
 	predictions = predictions.flatten()
 	Y = Y.flatten()
-	m = len(predictions)
+	m = predictions.shape[0]
 	epsilon = 1e-5    
 	return (-1 / m) * np.sum(Y * np.log(predictions + epsilon) + (1 - Y) * np.log(1 - predictions + epsilon))
 
 def CategoricalCrossEntropy(predictions, Y):
-	m = predictions.shape[1]
+	m = predictions.shape[0]
 	epsilon = 1e-5
 	return (-1/m) * np.sum(Y * np.log(predictions + epsilon))
 
