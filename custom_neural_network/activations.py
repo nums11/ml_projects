@@ -13,7 +13,7 @@ def sigmoid_derivative(sigmoid_x):
 	return sigmoid_x * (1 - sigmoid_x)
 
 def softmax(x):
-  return np.exp(x) / np.sum(np.exp(x), axis=0)
+  return np.exp(x) / np.sum(np.exp(x), axis=1, keepdims=True)
 
 def tanh(x):
 	return (np.exp(x)-np.exp(-x)) / (np.exp(x)+np.exp(-x))

@@ -39,9 +39,10 @@ before diving into anything else.
 suddenly start learning out of nowhere. This is where increasing the number of iterations comes in
 handy if you've increased the learning rate and it appears to be learning but still very slowly.
 In this regard, optimizers can make a huge difference in the # of iterations necessary.
+- Use your head and do an objective analysis. This can help you find bugs much faster.
 
 ToDo:
-- Go back and change the NN architecture to handle data where the sample represents eachrow
+- Update backprop to handle the flatten layer
 - Verify that my implementation trains correctly
 - Implement padded convolutions
 - Implement strided convolutions

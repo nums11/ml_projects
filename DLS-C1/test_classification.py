@@ -21,7 +21,6 @@ just use the custom model I built myself.
 import sys
 sys.path.append('../')
 from ml_projects.custom_neural_network.CustomNeuralNetwork import CustomNeuralNetwork
-from ml_projects.custom_neural_network.CustomNeuralNetworkV2 import CustomNeuralNetworkV2
 from ml_projects.custom_neural_network.layers import Dense as CustomDense
 from planar_data_utils import *
 import matplotlib.pyplot as plt
@@ -39,48 +38,25 @@ import copy
 def testCustomModel():
 	planar = load_planar_dataset()
 	noisy_circles, noisy_moons, blobs, gaussian_quantiles, no_structure = load_extra_datasets()
-	X, Y = blobs
+	X, Y = gaussian_quantiles
 	# print(Y)
 	# Y_one_hot = np.squeeze(np.eye(6)[Y.reshape(-1)])
 	# print(Y_one_hot)
 
-	nn = CustomNeuralNetworkV2("categorical_cross_entropy")
+	nn = CustomNeuralNetwork("binary_cross_entropy")
 	nn.addInputLayer((2,))
 	nn.add(CustomDense(4, "sigmoid"))
-	nn.add(CustomDense(6, "softmax"))
+	nn.add(CustomDense(1, "sigmoid"))
 
-	nn_old = CustomNeuralNetwork("categorical_cross_entropy")
-	nn_old.addInputLayer(2)
-	nn_old.addLayer(4, "sigmoid")
-	nn_old.addLayer(6, "softmax")
-	# nn.summary()
-
-	# nn_old.layers = copy.deepcopy(nn.layers)
-	# print(nn_old.layers[0].W)
-	# print(nn.layers[0].W)
-
-	# for layer in nn_old.layers:
-	# 	print("weights", layer.W)
-	# 	print("biases", layer.B)
-
-	# X = np.array([X[0], X[1], X[2]])
-	# Y = np.array([Y[0], Y[1], Y[2]])
-
-	Y = np.squeeze(np.eye(6)[Y.reshape(-1)])
-
-	# print("Old Net --------------------------------------")
-	# loss_old = nn_old.fit(X, Y, 0.01, 1000)
-	# plt.plot(loss_old)
-	# plt.show()
-	# print("Accuracy", nn_old.evaluate(X, Y, 'categorical_accuracy'))
-
-	# Y = Y.reshape(-1,1)
+	# print(Y, Y.shape)
+	Y = Y.reshape(-1,1)
+	# Y = np.squeeze(np.eye(6)[Y.reshape(-1)])
 
 	print("New net --------------------------------------")
 	loss = nn.fit(X, Y, 0.1, 1000)
 	plt.plot(loss)
 	plt.show()
-	print("Accuracy", nn.evaluate(X, Y, 'categorical_accuracy'))
+	print("Accuracy", nn.evaluate(X, Y, 'binary_accuracy'))
 
 def testTFModel():
 	planar = load_planar_dataset()
