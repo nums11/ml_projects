@@ -10,7 +10,9 @@ def BinaryAccuracy(predictions, labels):
 def CategoricalAccuracy(predictions, labels):
 	# labels = labels.T
 	predictions = np.argmax(predictions, axis=1).flatten()
+	# predictions = np.argmax(predictions, axis=0).flatten()
 	labels = np.argmax(labels, axis=1).flatten()
+	# labels = np.argmax(labels, axis=0).flatten()
 	return BinaryAccuracy(predictions, labels)
 
 def SparseCategoricalAccuracy(predictions, labels):

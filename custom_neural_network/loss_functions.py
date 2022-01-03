@@ -9,6 +9,7 @@ def binaryCrossEntroypy(predictions, Y):
 
 def CategoricalCrossEntropy(predictions, Y):
 	m = predictions.shape[0]
+	# m = predictions.shape[1]
 	epsilon = 1e-5
 	return (-1/m) * np.sum(Y * np.log(predictions + epsilon))
 

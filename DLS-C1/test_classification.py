@@ -49,13 +49,11 @@ def testCustomModel():
 	nn.add(CustomDense(4, "sigmoid"))
 	nn.add(CustomDense(6, "softmax"))
 
-	# nn_old = CustomNeuralNetwork("binary_cross_entropy")
-	# nn_old.addInputLayer((2,))
-	# nn_old.add(CustomDense(4, "sigmoid"))
-	# nn_old.add(CustomDense(1, "sigmoid"))
-	# # nn.summary()
-
-
+	nn_old = CustomNeuralNetwork("categorical_cross_entropy")
+	nn_old.addInputLayer(2)
+	nn_old.addLayer(4, "sigmoid")
+	nn_old.addLayer(6, "softmax")
+	# nn.summary()
 
 	# nn_old.layers = copy.deepcopy(nn.layers)
 	# print(nn_old.layers[0].W)
@@ -68,19 +66,18 @@ def testCustomModel():
 	# X = np.array([X[0], X[1], X[2]])
 	# Y = np.array([Y[0], Y[1], Y[2]])
 
-	# print("Old Net --------------------------------------")
-	# loss_old = nn_old.fit(X, Y, 0.01, 1)
-	# # plt.plot(loss_old)
-	# # plt.show()
-	# # print("Accuracy", nn_old.evaluate(X, Y, 'binary_accuracy'))
-
-	# print(X.shape)
 	Y = np.squeeze(np.eye(6)[Y.reshape(-1)])
-	# print(Y, Y.shape)
+
+	# print("Old Net --------------------------------------")
+	# loss_old = nn_old.fit(X, Y, 0.01, 1000)
+	# plt.plot(loss_old)
+	# plt.show()
+	# print("Accuracy", nn_old.evaluate(X, Y, 'categorical_accuracy'))
+
 	# Y = Y.reshape(-1,1)
 
 	print("New net --------------------------------------")
-	loss = nn.fit(X, Y, 0.1, 10000)
+	loss = nn.fit(X, Y, 0.1, 1000)
 	plt.plot(loss)
 	plt.show()
 	print("Accuracy", nn.evaluate(X, Y, 'categorical_accuracy'))
