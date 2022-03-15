@@ -25,26 +25,33 @@ def sigmoid(x):
 class CustomNeuralNetwork(object):
 	def __init__(self, loss_func):
 		self.layers = []
-		self.num_input_features = None
+		self.input_shape = None
 		self.loss_func = loss_functions[loss_func]
 
 	def addInputLayer(self, input_shape):
-		num_dimensions = len(input_shape)
-		if num_dimensions == 1: # tabular data
-			self.num_input_features = input_shape[0]
-		elif num_dimensions == 3: # images
-			self.input_shape = input_shape
+		num_input_dimensions = len(input_shape)
+		if num_input_dimensions == 1 or num_input_dimensions == 3:
+			self.input_shape = (None,) + input_shape
 		else:
-			raise Exception("Input shape must be either 1 or 3 dimensional. Got shape", input_shape)
+			raise Exception("Input shape must be either 1 or 3 dimensional. Got shape", input_shape,
+				"with", num_input_dimensions, "dimensions")
 
 	def add(self, layer):
+		prev_layer_output_shape = None
+		# if this will be the first layer
+		if len(self.layers) == 0:
+			prev_layer_output_shape = self.input_shape
+		else:
+			prev_layer_output_shape = self.layers[-1].output_shape
+
 		if isinstance(layer, Dense):
-			layer.initWeightMatrix(self.num_input_features, self.layers)
+			layer.initWeightMatrix(prev_layer_output_shape)
+		layer.calcOutputShape(prev_layer_output_shape)
 		self.layers.append(layer)
 	
 	def summary(self):
 		print("Custom Neural Network")
-		if self.num_input_features == None or len(self.layers) == 0:
+		if len(self.layers) == 0:
 			print("No layers")
 		else:
 			table = []
@@ -53,22 +60,16 @@ class CustomNeuralNetwork(object):
 				if isinstance(layer, Dense):
 					layer_type = "Dense"
 					num_params = layer.W.shape[0] * layer.W.shape[1] + layer.B.shape[0]
-					output_shape = (None, layer.num_units)
+				elif isinstance(layer, Flatten):
+					layer_type = "Flatten"
+					num_params = 0
 				else:
 					layer_type = "Conv2D"
 					num_params = layer.num_filters * layer.filter_size * layer.filter_size + layer.num_filters
-					output_shape = (None, layer.filter_size, layer.filter_size, layer.num_filters)
 
-				layer_activation = None
-				if layer.activation_func == activations["relu"]:
-					layer_activation = "ReLU"
-				elif layer.activation_func == activations["sigmoid"]:
-					layer_activation = "Sigmoid"
-				elif layer.activation_func == activations["softmax"]:
-					layer_activation = "Softmax"
-
-				table.append([layer_type, output_shape, num_params, layer_activation])
-			print(tabulate(table, headers=['Layer Type', 'Output Shape', '# Params', 'Activation'], tablefmt='pretty'))
+				output_shape = layer.output_shape
+				table.append([layer_type, output_shape, num_params])
+			print(tabulate(table, headers=['Layer Type', 'Output Shape', '# Params'], tablefmt='grid'))
 
 	def fit(self, X, Y, alpha, epochs):
 		self.X = X
@@ -81,8 +82,8 @@ class CustomNeuralNetwork(object):
 		self.losses = []
 		for epoch in tqdm(range(epochs)):
 			self.forwardProp()
-			self.backProp()
-			self.updateWeights()
+			# self.backProp()
+			# self.updateWeights()
 		return self.losses
 
 	def forwardProp(self, custom_X=None):
@@ -99,22 +100,23 @@ class CustomNeuralNetwork(object):
 				assert(layer.Z.shape == (self.m, layer.num_units))
 				assert(layer.Z.shape == layer.A.shape)
 			elif isinstance(layer, Flatten):
-				layer.A = flatten(A_prev_layer)
-				print("layer.A\n", layer.A, layer.A.shape)
+				print("Before flatten prev layer shape", A_prev_layer.shape)
+				layer.A = A_prev_layer.reshape(A_prev_layer.shape[0], -1)
+				print("Flatten layer shape", layer.A.shape)
 			else:
 				# Convolutional layer
 				layer.Z = convolve(A_prev_layer, layer)
 				# layer.Z = convolve2(A_prev_layer, layer)
 				# layer.Z = convolve3(A_prev_layer, layer)
 				layer.A = layer.activation_func(layer.Z)
-				print("shape", layer.A.shape)
+				# print("shape", layer.A.shape)
 				# print("A")
 				# print(layer.A)
 
-		predictions = self.layers[-1].A
-		if custom_X is None:
-			self.losses.append(self.loss_func(predictions, self.Y))
-		return predictions
+		# predictions = self.layers[-1].A
+		# if custom_X is None:
+		# 	self.losses.append(self.loss_func(predictions, self.Y))
+		# return predictions
 
 	def backProp(self):
 		# skip over the flatten layers

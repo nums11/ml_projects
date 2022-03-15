@@ -42,6 +42,8 @@ In this regard, optimizers can make a huge difference in the # of iterations nec
 - Use your head and do an objective analysis. This can help you find bugs much faster.
 
 ToDo:
+- Change conv to output shape (m, output_size, output_size, num_filters) instead of 
+(m, num_filters, output_size, output_size)
 - Update backprop to handle the flatten layer
 - Verify that my implementation trains correctly
 - Implement padded convolutions
@@ -90,6 +92,29 @@ def testCustomModel():
 	# 	]
 	# ])
 
+	# mat = np.array([
+	# 	[
+	# 		[1,2],
+	# 		[3,4]
+	# 	],
+	# 	[
+	# 		[5,6],
+	# 		[7,8]
+	# 	],
+	# 	[
+	# 		[9,10],
+	# 		[11,12]
+	# 	],
+	# 	[
+	# 		[13,14],
+	# 		[15,16]
+	# 	]
+	# ])
+
+
+	# smaller = mat[0:2, :, :]
+	# print(smaller)
+
 	# print("mat_1\n", mat_1, mat_1.shape)
 	# print("mat_2\n", mat_2, mat_2.shape)
 	# mult = mat_1 * mat_2
@@ -110,20 +135,37 @@ def testCustomModel():
 	# I have a hunch that if I reshape W properly, I can do a matrix mulitplication to get the
 	# output that I'm looking for
 
+	# Only using 5 samples for now
+
+	# I'm actually very close to a done implementation of a basic CNN. I just need
+	# to get the flatten layer to work for backprop. Before I do that, I should make
+	# sure that each layer stores it's output shape. The reason being, in backpropogation
+	# with the flatten layer I think I'm going to need to reshape the flattened output
+	# back into the shape that the convolutional layer expects.
+
+	# Each layer is now storing the output shape successfully. Next step is to make sure
+	# forward prop is running successfully then backprop. I think the last step is failing
+	# in the transition from flatten to the dense layer. The issue is actually that the flatten
+	# layer is reshaping the whole matrix when it should only reshape across the axes not
+	# including the batch dimension. I think I fixed it but I should test it to make sure the
+	# calculations are actually correct
+
+	X_train = X_train[0:5, : :]
+	Y_train = Y_train[0:5]
 
 	nn = CustomNeuralNetwork("sparse_categorical_cross_entropy")
 	nn.addInputLayer((28,28,1))
 	nn.add(CustomConv2D(1, 3, "tanh"))
 	nn.add(CustomFlatten())
-	# # # nn.add(CustomDense(4, "sigmoid"))
-	# # # nn.add(CustomDense(6, "softmax"))
-	# # # nn.summary()
+	nn.add(CustomDense(10, "softmax"))
+	nn.summary()
 	nn.fit(X_train, Y_train, 0.01, 1)
 
 def displayDataPoint(index):
 	plt.imshow(X_train[index], cmap=plt.get_cmap('gray'))
 	plt.show()
 
+# 86% accuracy with this simple implementation
 def testTF():
 	(X_train, Y_train), (X_test, Y_test) = mnist.load_data()
 	num_classes = 10
@@ -134,16 +176,16 @@ def testTF():
 	X_test = tf.cast(X_test, tf.float64)
 
 	model = Sequential()
-	model.add(Conv2D(1, 3, activation='relu'))
-	model.add(Flatten())
-	model.add(Dense(num_classes, activation='softmax'))
+	# model.add(Conv2D(2, 3, activation='relu'))
+	# model.add(Flatten())
+	# model.add(Dense(num_classes, activation='softmax'))
 	model.compile(
 		optimizer=tf.keras.optimizers.Adam(learning_rate=0.01),
 		loss=tf.keras.losses.SparseCategoricalCrossentropy(),
 		metrics=[tf.keras.metrics.SparseCategoricalAccuracy()]
 	)
-	history = model.fit(X_train, Y_train, epochs=5, validation_data=(X_test, Y_test))
-	# model.summary()
+	history = model.fit(X_train, Y_train, epochs=1, validation_data=(X_test, Y_test))
+	model.summary()
 	fig, axs = plt.subplots(2, 1, figsize=(15,15))
 	axs[0].plot(history.history['loss'])
 	axs[0].plot(history.history['val_loss'])

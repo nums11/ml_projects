@@ -200,8 +200,8 @@ def trainTF():
 def trainPyTorch():
 	torch.set_default_dtype(torch.float64)
 	X, Y = load_planar_dataset()
-	X_tensor = torch.from_numpy(X).to(torch.float64)
-	Y_tensor = torch.from_numpy(Y).to(torch.float64)
+	X_tensor = torch.from_numpy(X).to(torch.float64).to("dml")
+	Y_tensor = torch.from_numpy(Y).to(torch.float64).to("dml")
 
 	dataset = TensorDataset(X_tensor, Y_tensor)
 	training_data_loader = DataLoader(dataset, batch_size=X.shape[0], num_workers=2)
@@ -216,7 +216,7 @@ def trainPyTorch():
 	lossFunc = nn.BCELoss()
 	optimizer = optim.Adam(model.parameters(), lr=0.01)
 	losses = []
-	for epoch in tqdm(range(2000)):
+	for epoch in tqdm(range(1000)):
 		for i, data in enumerate(training_data_loader, 0):
 			inputs, labels = data
 			optimizer.zero_grad()
@@ -238,6 +238,6 @@ def trainPyTorch():
 	accuracy = 100 * num_correct / len(dataset)
 	print(accuracy)
 
-main()
+# main()
 # trainTF()
-# trainPyTorch()
+trainPyTorch()
